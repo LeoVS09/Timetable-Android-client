@@ -20,11 +20,21 @@ public class WeekBuilder {
         this.nameField = "days";
         this.dayNames = new ArrayList<>();
         dayNames.add(new DayNames("Monday","Пн"));
+        dayNames.add(new DayNames("Tuesday","Вт"));
+        dayNames.add(new DayNames("Wednesday","Ср"));
+        dayNames.add(new DayNames("Thursday","Чт"));
+        dayNames.add(new DayNames("Friday","Пт"));
+        dayNames.add(new DayNames("Saturday","Сб"));
         this.times = new ArrayList<>();
+        times.add("9.00-10.35");
         times.add("10.45-12.20");
+        times.add("13.00-14.35");
+        times.add("14.45-16.20");
+        times.add("16.30-18.05");
     }
 
     public Week buildWeek(String json)throws Exception{
+        Log.i("buildWeek",json);
         JSONParser parser = new JSONParser();
         ArrayList<Day> days = new ArrayList<>();
         DayBuilder dayBuilder = new DayBuilder();
@@ -36,6 +46,7 @@ public class WeekBuilder {
                         .times(times)
                         .buildDay((JSONObject) obj.get(dayName.getJsonName())));
             }
+            Log.i("buildWeekDays",days.toString());
             return new Week(times,days);
         }catch (Exception e){
             Log.e("Week::JSONParse:",e.getMessage(),e);

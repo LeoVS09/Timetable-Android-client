@@ -1,5 +1,7 @@
 package edu.bonch.leovs09.timetable.ODT;
 
+import android.util.Log;
+
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -19,10 +21,12 @@ public class DayBuilder {
     public Day buildDay(JSONObject json){
         ArrayList<Lesson> lessons = new ArrayList<>();
         for(String time: times){
-            Object obj =  json.get(time);
+            JSONObject obj = (JSONObject) json.get(time);
+            Log.i("LessonNew",obj == null ? "null" :obj.toString());
             if(obj == null) lessons.add(new Lesson("none"));
             else {
-                Lesson lesson = (Lesson) obj;
+                Lesson lesson = new Lesson(obj);
+                Log.i("LessonPost",lesson.toString());
                 lessons.add(lesson);
             }
         }

@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         try {
-            new HttpRequestSetCurrentWeek().execute();
+            String response = new HttpRequestSetCurrentWeek().execute().get();
+            week = new WeekBuilder().buildWeek(response);
         }catch (Exception e){
             Log.e("MainActivity", e.getMessage(), e);
         }
