@@ -19,12 +19,12 @@ public class WeekBuilder {
     public WeekBuilder(){
         this.nameField = "days";
         this.dayNames = new ArrayList<>();
-        dayNames.add(new DayNames("Monday","Пн"));
-        dayNames.add(new DayNames("Tuesday","Вт"));
-        dayNames.add(new DayNames("Wednesday","Ср"));
-        dayNames.add(new DayNames("Thursday","Чт"));
-        dayNames.add(new DayNames("Friday","Пт"));
-        dayNames.add(new DayNames("Saturday","Сб"));
+        dayNames.add(new DayNames("Monday","Mon"));
+        dayNames.add(new DayNames("Tuesday","Tue"));
+        dayNames.add(new DayNames("Wednesday","Wed"));
+        dayNames.add(new DayNames("Thursday","Thu"));
+        dayNames.add(new DayNames("Friday","Fri"));
+        dayNames.add(new DayNames("Saturday","Sat"));
         this.times = new ArrayList<>();
         times.add("9.00-10.35");
         times.add("10.45-12.20");
