@@ -1,5 +1,6 @@
 package edu.bonch.leovs09.timetable;
 
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import edu.bonch.leovs09.timetable.REST.RestRequest;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -115,8 +120,41 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            try {
+                new HttpRequestTask().execute(textView);
+            }catch (Exception e){
+                Log.e("textView: GetString",e.getMessage(),e);
+            }
             return rootView;
+        }
+
+        private class HttpRequestTask extends AsyncTask<TextView, Void, String> {
+
+
+            private RestRequest restRequest = new RestRequest();
+            TextView textView;
+            @Override
+            protected String doInBackground(TextView... params) {
+                this.textView = params[0];
+                try {
+
+                    RestRequest rest = new RestRequest();
+                    //rest.in  определят что отсылка произойдет по адресу http://{host}/message/{username} и возврашает rest
+                    //rest.send отсылает обьект params[0] и возврашает обьект типа Message.class
+                    return restRequest.in("currentTimeTable", "group").GetObjAndStatus(String.class).toString();
+                } catch (Exception e) {
+                    Log.e("MainActivity", e.getMessage(), e);
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String message) {
+                textView.setText(message);
+            }
+
         }
     }
 
@@ -139,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 6 total pages.
             return 6;
         }
 
@@ -162,4 +200,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+
 }
