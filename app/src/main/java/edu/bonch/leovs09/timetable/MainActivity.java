@@ -1,5 +1,6 @@
 package edu.bonch.leovs09.timetable;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -52,10 +53,20 @@ public class MainActivity extends AppCompatActivity {
 
     private Week week;
 
+    ProgressDialog progress;
+
+    private AsyncTask backTask;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        progress = new ProgressDialog(this);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setMessage("Loading...");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,9 +77,10 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
+//        backTask = new HttpRequestSetCurrentWeek().execute();
         try {
             String response = new HttpRequestSetCurrentWeek().execute().get();
+            progress.dismiss();
             week = new WeekBuilder().buildWeek(response);
         }catch (Exception e){
             Log.e("MainActivity", e.getMessage(), e);
@@ -179,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 for(int i = 1;i<times.size();i++){
                     TableRow newRow = new TableRow(getContext());
                     newRow.setLayoutParams(row.getLayoutParams());
-                    newRow.setId(101);
+                    newRow.setId(R.id.lessonRoom);
 
                     TextView newTime = new TextView(getContext());
                     newTime.setLayoutParams(time.getLayoutParams());
@@ -190,8 +202,8 @@ public class MainActivity extends AppCompatActivity {
                     newTime.setBackground(time.getBackground());
                     newTime.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     newTime.setTextSize(TypedValue.COMPLEX_UNIT_PX,time.getTextSize());
-                    newTime.setMinWidth(time.getMinWidth());
-                    newTime.setId(101);
+//                    newTime.setMinWidth(time.getMinWidth());
+                    newTime.setId(R.id.lessonRoom);
                     newTime.setText(times.get(i));
                     newRow.addView(newTime);
 
@@ -204,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                     newLessonName.setBackground(lessonName.getBackground());
                     newLessonName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     newLessonName.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonName.getTextSize());
-                    newLessonName.setId(101);
+                    newLessonName.setId(R.id.lessonRoom);
                     TextView newLessonRoom = new TextView(getContext());
                     newLessonRoom.setLayoutParams(lessonRoom.getLayoutParams());
                     newLessonRoom.setPadding(lessonRoom.getPaddingLeft(),
@@ -215,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
                     newLessonRoom.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     newLessonRoom.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonRoom.getTextSize());
 
-                    newLessonRoom.setId(101);
+                    newLessonRoom.setId(R.id.lessonRoom);
 
                     lesson = day.getLessons().get(i);
                     if (lesson.getName().equals("none")) {
@@ -245,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         private RestRequest restRequest = new RestRequest();
         @Override
         protected String doInBackground(Void... params) {
+            publishProgress(null);
             try {
 
                 RestRequest rest = new RestRequest();
@@ -257,8 +270,15 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+        @Override
+        protected void onProgressUpdate(Void... values) {
+//            super.onProgressUpdate(values);
+//            progress.show();
+        }
+
 //        @Override
 //        protected void onPostExecute(String response) {
+//            progress.dismiss();
 //            try {
 //                week = new WeekBuilder().buildWeek(response);
 //            }catch (Exception e){
@@ -281,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+//            while(backTask.getStatus() != AsyncTask.Status.FINISHED){}
             return PlaceholderFragment.newInstance(position + 1,week.getDays().get(position),week.getTimes());
         }
 

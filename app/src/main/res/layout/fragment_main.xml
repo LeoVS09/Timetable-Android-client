@@ -37,23 +37,22 @@
             >
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="150sp"
+                android:layout_height="match_parent"
                 android:text="9:00-10:35"
                 android:id="@+id/time"
                 android:layout_column="0"
                 android:background="@color/button_material_light"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:textAlignment="center"
                 android:textSize="@dimen/abc_text_size_large_material"
-                android:minWidth="100sp"
                 android:nestedScrollingEnabled="false"
                 android:paddingTop="@dimen/abc_text_size_caption_material"
                 android:paddingBottom="@dimen/abc_text_size_caption_material" />
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
                 android:text="ММвСС"
                 android:id="@+id/lessonName"
                 android:layout_column="1"
@@ -65,17 +64,18 @@
                 android:padding="@dimen/abc_text_size_caption_material" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="100sp"
+                android:layout_height="match_parent"
                 android:text="535/2"
                 android:id="@+id/lessonRoom"
                 android:layout_column="2"
-                android:padding="@dimen/abc_text_size_caption_material"
                 android:background="@color/colorPrimary"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:textAlignment="center"
                 android:textSize="@dimen/abc_text_size_large_material"
-                android:textIsSelectable="false" />
+                android:textIsSelectable="false"
+                android:paddingTop="@dimen/abc_text_size_caption_material"
+                android:paddingBottom="@dimen/abc_text_size_caption_material" />
 
             <!--<TextView-->
                 <!--android:layout_width="match_parent"-->
