@@ -6,7 +6,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="edu.bonch.leovs09.timetable.MainActivity$PlaceholderFragment">
+    tools:context="edu.bonch.leovs09.timetable.MainActivity$PlaceholderFragment"
+    >
 
     <TextView
         android:id="@+id/section_label"
@@ -21,71 +22,82 @@
 
 
     <TableLayout
+        android:id="@+id/section_table"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/section_label"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        >
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/lesson1">
+            android:id="@+id/lesson"
+            >
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="9:00-10:35"
                 android:id="@+id/time"
                 android:layout_column="0"
-                style="@style/AlertDialog.AppCompat.Light"
-                android:padding="@dimen/abc_text_size_caption_material"
                 android:background="@color/button_material_light"
-                android:layout_weight="2" />
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="@dimen/abc_text_size_large_material"
+                android:minWidth="100sp"
+                android:nestedScrollingEnabled="false"
+                android:paddingTop="@dimen/abc_text_size_caption_material"
+                android:paddingBottom="@dimen/abc_text_size_caption_material" />
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:text="ММвСС"
                 android:id="@+id/lessonName"
                 android:layout_column="1"
-                style="@style/AlertDialog.AppCompat.Light"
-                android:padding="@dimen/abc_text_size_caption_material"
                 android:background="@color/colorPrimaryDark"
-                android:layout_weight="5" />
+                android:layout_weight="5"
+                android:textAlignment="center"
+                android:textIsSelectable="false"
+                android:textSize="@dimen/abc_text_size_large_material"
+                android:padding="@dimen/abc_text_size_caption_material" />
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:text="535/2"
                 android:id="@+id/lessonRoom"
                 android:layout_column="2"
-                style="@style/AlertDialog.AppCompat.Light"
                 android:padding="@dimen/abc_text_size_caption_material"
                 android:background="@color/colorPrimary"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="@dimen/abc_text_size_large_material"
+                android:textIsSelectable="false" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="лаб"
-                android:id="@+id/lessonType"
-                android:layout_column="3"
-                style="@style/AlertDialog.AppCompat.Light"
-                android:padding="@dimen/abc_text_size_caption_material"
-                android:background="@color/colorPrimary"
-                android:layout_weight="0.5" />
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="лаб"-->
+                <!--android:id="@+id/lessonType"-->
+                <!--android:layout_column="3"-->
+                <!--style="@style/AlertDialog.AppCompat.Light"-->
+                <!--android:padding="@dimen/abc_text_size_caption_material"-->
+                <!--android:background="@color/colorPrimary"-->
+                <!--android:layout_weight="0.5" />-->
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Кисель"
-                android:id="@+id/lessonTeacher"
-                android:layout_column="4"
-                style="@style/AlertDialog.AppCompat.Light"
-                android:padding="@dimen/abc_text_size_caption_material"
-                android:background="@color/colorPrimary"
-                android:layout_weight="1" />
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Кисель"-->
+                <!--android:id="@+id/lessonTeacher"-->
+                <!--android:layout_column="4"-->
+                <!--style="@style/AlertDialog.AppCompat.Light"-->
+                <!--android:padding="@dimen/abc_text_size_caption_material"-->
+                <!--android:background="@color/colorPrimary"-->
+                <!--android:layout_weight="1" />-->
         </TableRow>
 
 

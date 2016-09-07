@@ -12,12 +12,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -147,22 +150,88 @@ public class MainActivity extends AppCompatActivity {
             ObjectMapper objectMapper = new ObjectMapper();
             Day day ;
             ArrayList<String> times;
-            try{
-                day = objectMapper.readValue(getArguments().getString(ARG_SECTION_DAY),Day.class);
+            try {
+                day = objectMapper.readValue(getArguments().getString(ARG_SECTION_DAY), Day.class);
                 times = objectMapper.readValue(getArguments().getString(ARG_SECTION_TIMES),
                         objectMapper.getTypeFactory()
                                 .constructCollectionType(ArrayList.class, String.class));
 
                 dayName.setText(day.getName());
+
+                TableRow row = (TableRow) rootView.findViewById(R.id.lesson);
+
+                TextView time = (TextView) rootView.findViewById(R.id.time);
                 TextView lessonName = (TextView) rootView.findViewById(R.id.lessonName);
                 TextView lessonRoom = (TextView) rootView.findViewById(R.id.lessonRoom);
-                TextView lessonType = (TextView) rootView.findViewById(R.id.lessonType);
-                TextView lessonTeacher = (TextView) rootView.findViewById(R.id.lessonTeacher);
-                Lesson lesson = day.getLessons().get(2);
-                lessonName.setText(lesson.getName());
-                lessonRoom.setText(lesson.getRoom());
-                lessonType.setText(lesson.getType());
-                lessonTeacher.setText(lesson.getTeacher());
+
+                time.setText(times.get(0));
+                Lesson lesson = day.getLessons().get(0);
+                if (lesson.getName().equals("none")) {
+                    lessonName.setText("--------");
+                    lessonRoom.setText("---");
+                } else {
+                    lessonName.setText(lesson.getName());
+                    lessonRoom.setText(lesson.getRoom());
+                }
+
+                TableLayout table = (TableLayout) rootView.findViewById(R.id.section_table);
+
+                for(int i = 1;i<times.size();i++){
+                    TableRow newRow = new TableRow(getContext());
+                    newRow.setLayoutParams(row.getLayoutParams());
+                    newRow.setId(101);
+
+                    TextView newTime = new TextView(getContext());
+                    newTime.setLayoutParams(time.getLayoutParams());
+                    newTime.setPadding(time.getPaddingLeft(),
+                            time.getPaddingTop(),
+                            time.getPaddingRight(),
+                            time.getPaddingBottom());
+                    newTime.setBackground(time.getBackground());
+                    newTime.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    newTime.setTextSize(TypedValue.COMPLEX_UNIT_PX,time.getTextSize());
+                    newTime.setMinWidth(time.getMinWidth());
+                    newTime.setId(101);
+                    newTime.setText(times.get(i));
+                    newRow.addView(newTime);
+
+                    TextView newLessonName = new TextView(getContext());
+                    newLessonName.setLayoutParams(lessonName.getLayoutParams());
+                    newLessonName.setPadding(lessonName.getPaddingLeft(),
+                            lessonName.getPaddingTop(),
+                            lessonName.getPaddingRight(),
+                            lessonName.getPaddingBottom());
+                    newLessonName.setBackground(lessonName.getBackground());
+                    newLessonName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    newLessonName.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonName.getTextSize());
+                    newLessonName.setId(101);
+                    TextView newLessonRoom = new TextView(getContext());
+                    newLessonRoom.setLayoutParams(lessonRoom.getLayoutParams());
+                    newLessonRoom.setPadding(lessonRoom.getPaddingLeft(),
+                            lessonRoom.getPaddingTop(),
+                            lessonRoom.getPaddingRight(),
+                            lessonRoom.getPaddingBottom());
+                    newLessonRoom.setBackground(lessonRoom.getBackground());
+                    newLessonRoom.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    newLessonRoom.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonRoom.getTextSize());
+
+                    newLessonRoom.setId(101);
+
+                    lesson = day.getLessons().get(i);
+                    if (lesson.getName().equals("none")) {
+                        newLessonName.setText("--------");
+                        newLessonRoom.setText("---");
+                    } else {
+                        newLessonName.setText(lesson.getName());
+                        newLessonRoom.setText(lesson.getRoom());
+                    }
+
+                    newRow.addView(newLessonName);
+                    newRow.addView(newLessonRoom);
+
+                    table.addView(newRow);
+                }
+
             }catch (Exception e){
                 Log.e("onCreateView::readJson", e.getMessage(), e);
             }
@@ -179,7 +248,8 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 RestRequest rest = new RestRequest();
-                return restRequest.in("currentTimeTable", "ИКПИ-53","2").GetObjAndStatus(String.class).toString();
+                return restRequest.in("currentTimeTable", "ИКПИ-53","2")
+                        .GetObjAndStatus(String.class).toString();
             } catch (Exception e) {
                 Log.e("HttpRequest::Start", e.getMessage(), e);
             }
