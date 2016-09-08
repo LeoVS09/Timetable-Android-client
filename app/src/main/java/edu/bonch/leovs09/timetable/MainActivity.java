@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Week[] mWeeks = new Week[10];
 
+    private ProgressDialog progress;
+
     public Week[]getWeeks() {
         return mWeeks;
     }
@@ -62,16 +64,16 @@ public class MainActivity extends AppCompatActivity {
         this.mWeeks = Weeks;
     }
 
-
-
-
-
+    public ProgressDialog getProgress() {
+        return progress;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        progress = new ProgressDialog(this);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -160,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
+
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
@@ -167,41 +171,38 @@ public class MainActivity extends AppCompatActivity {
             //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             ObjectMapper objectMapper = new ObjectMapper();
 
-            ArrayList<String> times;
+
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+
             try {
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mWeeks  = mainActivity.getWeeks();
-                if(mWeeks[sectionNumber] == null){
-                    progress = new ProgressDialog(getContext());
-                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progress.setMessage("Loading data...");
-
-                    WeekWrapper weekWrapper = new HttpRequestSetCurrentWeek().execute("ИКПИ-53",Integer.toString(sectionNumber)).get();
-                    mWeeks[weekWrapper.getNumOfWeek()] =  weekWrapper.getWeek();
-                    progress.dismiss();
-                }
-                    Week week = mWeeks[sectionNumber];
-                    TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
-                    weekName.setText(sectionNumber + " week");
-                    times = week.getTimes();
-                    Log.i("onCreateView", "week size: " + week.getDays().size());
-                    for (Day day : week.getDays()) {
-
-                        TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
-                        dayName.setText(day.getName());
-                        fragmentLayout.addView(dayName);
-
-                        TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
-                        addLessons(table, day, times, inflater);
-                        fragmentLayout.addView(table);
-                    }
+                showWeek(sectionNumber,inflater,fragmentLayout);
 
             }catch (Exception e){
                 Log.e("onCreateView::readJson", e.getMessage(), e);
             }
 //            textView.setText(getArguments().getString(ARG_SECTION_TEXT));
             return rootView;
+        }
+
+        private void showWeek(int sectionNumber,LayoutInflater inflater,LinearLayout fragmentLayout){
+            Week week = mWeeks[sectionNumber];
+            ArrayList<String> times;
+            TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
+            weekName.setText(sectionNumber + " week");
+            times = week.getTimes();
+            Log.i("onCreateView", "week size: " + week.getDays().size());
+            for (Day day : week.getDays()) {
+
+                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
+                dayName.setText(day.getName());
+                fragmentLayout.addView(dayName);
+
+                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
+                addLessons(table, day, times, inflater);
+                fragmentLayout.addView(table);
+            }
         }
 
         private void addLessons(TableLayout table,Day day,ArrayList<String> times,LayoutInflater inflater){
@@ -225,84 +226,84 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private class HttpRequestSetCurrentWeek extends AsyncTask<String, String, WeekWrapper> {
 
-            private RestRequest restRequest = new RestRequest();
-
-            @Override
-            protected void onPreExecute(){
-                progress.setMessage("Loading data...");
-                progress.show();
-            }
-            @Override
-            protected WeekWrapper doInBackground(String... params) {
-                publishProgress("Loading data...");
-                try {
-                    Log.i("HttpRequest", "Start");
-                    RestRequest rest = new RestRequest();
-                    String response = restRequest.in("currentTimeTable", params[0], params[1])
-                            .GetObjAndStatus(String.class).toString();
-                    Log.i("HttpRequest", "Response received");
-                    publishProgress("Processing data...");
-
-                    return new WeekWrapper(response,params[1]);
-
-                } catch (Exception e) {
-                    Log.e("HttpRequest::Start", e.getMessage(), e);
-                }
-
-                return null;
-            }
-
-
-            protected void onProgressUpdate(String value) {
-//            super.onProgressUpdate(value);
-                progress.setMessage(value);
-                progress.show();
-            }
-
-//            @Override
-//            protected void onPostExecute(WeekWrapper response) {
-////            super.onPostExecute(response);
-//                Log.i("HttpRequest", "onPost start");
-//                try {
-//                    mWeeks.add(response.getNumOfWeek(), response.getWeek());
-//                    Log.i("HttpRequest", "finished");
-//                } catch (Exception e) {
-//                    Log.e("HttpRequest::OnPost", e.getMessage(), e);
-//                }
-//                progress.dismiss();
-//
-//            }
-        }
-        private class WeekWrapper{
-            private String week;
-            private String numOfWeek;
-
-            public WeekWrapper(String week, String numOfWeek) {
-                this.week = week;
-                this.numOfWeek = numOfWeek;
-            }
-
-            public Week getWeek()throws Exception {
-                return new WeekBuilder().buildWeek(week);
-            }
-
-            public void setWeek(String week) {
-                this.week = week;
-            }
-
-            public int getNumOfWeek() {
-                return Integer.parseInt(numOfWeek);
-            }
-
-            public void setNumOfWeek(String numOfWeek) {
-                this.numOfWeek = numOfWeek;
-            }
-        }
 
     }
+    private class HttpRequestSetCurrentWeek extends AsyncTask<String, String, WeekWrapper> {
 
+        private RestRequest restRequest = new RestRequest();
+
+
+        @Override
+        protected void onPreExecute(){
+            progress.setMessage("Loading data...");
+            progress.show();
+        }
+        @Override
+        protected WeekWrapper doInBackground(String... params) {
+            publishProgress("Loading data...");
+            try {
+                Log.i("HttpRequest", "Start");
+                RestRequest rest = new RestRequest();
+                String response = restRequest.in("currentTimeTable", params[0], params[1])
+                        .GetObjAndStatus(String.class).toString();
+                Log.i("HttpRequest", "Response received");
+                publishProgress("Processing data...");
+
+                return new WeekWrapper(response,params[1]);
+
+            } catch (Exception e) {
+                Log.e("HttpRequest::Start", e.getMessage(), e);
+            }
+
+            return null;
+        }
+
+
+        protected void onProgressUpdate(String value) {
+//            super.onProgressUpdate(value);
+            progress.setMessage(value);
+            progress.show();
+        }
+
+        @Override
+        protected void onPostExecute(WeekWrapper response) {
+//            super.onPostExecute(response);
+            Log.i("HttpRequest", "onPost start");
+            try {
+                mWeeks[response.getNumOfWeek()] = response.getWeek();
+                Log.i("HttpRequest", "finished");
+            } catch (Exception e) {
+                Log.e("HttpRequest::OnPost", e.getMessage(), e);
+            }
+            progress.dismiss();
+        }
+    }
+    private class WeekWrapper{
+        private String week;
+        private String numOfWeek;
+
+        public WeekWrapper(String week, String numOfWeek) {
+            this.week = week;
+            this.numOfWeek = numOfWeek;
+        }
+
+        public Week getWeek()throws Exception {
+            return new WeekBuilder().buildWeek(week);
+        }
+
+        public void setWeek(String week) {
+            this.week = week;
+        }
+
+        public int getNumOfWeek() {
+            return Integer.parseInt(numOfWeek);
+        }
+
+        public void setNumOfWeek(String numOfWeek) {
+            this.numOfWeek = numOfWeek;
+        }
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -318,6 +319,19 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+
+            if(mWeeks[position+2] == null){
+
+                progress.setMessage("Loading data...");
+                try {
+
+                    WeekWrapper response = new HttpRequestSetCurrentWeek().execute("ИКПИ-53", Integer.toString(position + 2)).get();
+                    mWeeks[response.getNumOfWeek()] = response.getWeek();
+                } catch (Exception e) {
+                    Log.e("PageAdapter:", e.getMessage(), e);
+                }
+                progress.dismiss();
+            }
 
             return PlaceholderFragment.newInstance(position+2);
         }
