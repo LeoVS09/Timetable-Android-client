@@ -20,12 +20,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import edu.bonch.leovs09.timetable.ODT.Day;
 import edu.bonch.leovs09.timetable.ODT.Lesson;
@@ -51,11 +52,18 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
-    private Week week;
+    private Week[] mWeeks = new Week[10];
 
-    ProgressDialog progress;
+    public Week[]getWeeks() {
+        return mWeeks;
+    }
 
-    private AsyncTask backTask;
+    public void setWeeks(Week[] Weeks) {
+        this.mWeeks = Weeks;
+    }
+
+
+
 
 
 
@@ -64,34 +72,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        progress = new ProgressDialog(this);
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setMessage("Loading...");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
+
+
+
+
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
-//        backTask = new HttpRequestSetCurrentWeek().execute();
-        try {
-            String response = new HttpRequestSetCurrentWeek().execute().get();
-            progress.dismiss();
-            week = new WeekBuilder().buildWeek(response);
-        }catch (Exception e){
-            Log.e("MainActivity", e.getMessage(), e);
-        }
 //--------------------------------button for update---------------------------------
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+//                backTask = new HttpRequestSetCurrentWeek().execute("ИКПИ-53","2");
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
             }
         });
 //----------------------------------------------------------------------------------
@@ -129,8 +132,10 @@ public class MainActivity extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-        private static final String ARG_SECTION_DAY = "section_day";
-        private static final String ARG_SECTION_TIMES = "section_times";
+        private static final String ARG_SECTION_WEEKS = "section_weeks";
+
+        private Week[] mWeeks;
+        private ProgressDialog progress;
         public PlaceholderFragment() {
         }
 
@@ -138,17 +143,16 @@ public class MainActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber, Day day, ArrayList<String> times) {
+        public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             ObjectMapper objectMapper = new ObjectMapper();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            try {
-                args.putString(ARG_SECTION_DAY, objectMapper.writeValueAsString(day));
-                args.putString(ARG_SECTION_TIMES, objectMapper.writeValueAsString(times));
-            }catch (Exception e){
-                Log.e("newInstance::writeJson", e.getMessage(), e);
-            }
+//            try {
+//
+//            }catch (Exception e){
+//                Log.e("newInstance::writeJson", e.getMessage(), e);
+//            }
             fragment.setArguments(args);
             return fragment;
         }
@@ -157,92 +161,41 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView dayName = (TextView) rootView.findViewById(R.id.section_label);
+
+
+            LinearLayout fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);
             //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             ObjectMapper objectMapper = new ObjectMapper();
-            Day day ;
+
             ArrayList<String> times;
+            int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
             try {
-                day = objectMapper.readValue(getArguments().getString(ARG_SECTION_DAY), Day.class);
-                times = objectMapper.readValue(getArguments().getString(ARG_SECTION_TIMES),
-                        objectMapper.getTypeFactory()
-                                .constructCollectionType(ArrayList.class, String.class));
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mWeeks  = mainActivity.getWeeks();
+                if(mWeeks[sectionNumber] == null){
+                    progress = new ProgressDialog(getContext());
+                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progress.setMessage("Loading data...");
 
-                dayName.setText(day.getName());
-
-                TableRow row = (TableRow) rootView.findViewById(R.id.lesson);
-
-                TextView time = (TextView) rootView.findViewById(R.id.time);
-                TextView lessonName = (TextView) rootView.findViewById(R.id.lessonName);
-                TextView lessonRoom = (TextView) rootView.findViewById(R.id.lessonRoom);
-
-                time.setText(times.get(0));
-                Lesson lesson = day.getLessons().get(0);
-                if (lesson.getName().equals("none")) {
-                    lessonName.setText("--------");
-                    lessonRoom.setText("---");
-                } else {
-                    lessonName.setText(lesson.getName());
-                    lessonRoom.setText(lesson.getRoom());
+                    WeekWrapper weekWrapper = new HttpRequestSetCurrentWeek().execute("ИКПИ-53",Integer.toString(sectionNumber)).get();
+                    mWeeks[weekWrapper.getNumOfWeek()] =  weekWrapper.getWeek();
+                    progress.dismiss();
                 }
+                    Week week = mWeeks[sectionNumber];
+                    TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
+                    weekName.setText(sectionNumber + " week");
+                    times = week.getTimes();
+                    Log.i("onCreateView", "week size: " + week.getDays().size());
+                    for (Day day : week.getDays()) {
 
-                TableLayout table = (TableLayout) rootView.findViewById(R.id.section_table);
+                        TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
+                        dayName.setText(day.getName());
+                        fragmentLayout.addView(dayName);
 
-                for(int i = 1;i<times.size();i++){
-                    TableRow newRow = new TableRow(getContext());
-                    newRow.setLayoutParams(row.getLayoutParams());
-                    newRow.setId(R.id.lessonRoom);
-
-                    TextView newTime = new TextView(getContext());
-                    newTime.setLayoutParams(time.getLayoutParams());
-                    newTime.setPadding(time.getPaddingLeft(),
-                            time.getPaddingTop(),
-                            time.getPaddingRight(),
-                            time.getPaddingBottom());
-                    newTime.setBackground(time.getBackground());
-                    newTime.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    newTime.setTextSize(TypedValue.COMPLEX_UNIT_PX,time.getTextSize());
-//                    newTime.setMinWidth(time.getMinWidth());
-                    newTime.setId(R.id.lessonRoom);
-                    newTime.setText(times.get(i));
-                    newRow.addView(newTime);
-
-                    TextView newLessonName = new TextView(getContext());
-                    newLessonName.setLayoutParams(lessonName.getLayoutParams());
-                    newLessonName.setPadding(lessonName.getPaddingLeft(),
-                            lessonName.getPaddingTop(),
-                            lessonName.getPaddingRight(),
-                            lessonName.getPaddingBottom());
-                    newLessonName.setBackground(lessonName.getBackground());
-                    newLessonName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    newLessonName.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonName.getTextSize());
-                    newLessonName.setId(R.id.lessonRoom);
-                    TextView newLessonRoom = new TextView(getContext());
-                    newLessonRoom.setLayoutParams(lessonRoom.getLayoutParams());
-                    newLessonRoom.setPadding(lessonRoom.getPaddingLeft(),
-                            lessonRoom.getPaddingTop(),
-                            lessonRoom.getPaddingRight(),
-                            lessonRoom.getPaddingBottom());
-                    newLessonRoom.setBackground(lessonRoom.getBackground());
-                    newLessonRoom.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    newLessonRoom.setTextSize(TypedValue.COMPLEX_UNIT_PX,lessonRoom.getTextSize());
-
-                    newLessonRoom.setId(R.id.lessonRoom);
-
-                    lesson = day.getLessons().get(i);
-                    if (lesson.getName().equals("none")) {
-                        newLessonName.setText("--------");
-                        newLessonRoom.setText("---");
-                    } else {
-                        newLessonName.setText(lesson.getName());
-                        newLessonRoom.setText(lesson.getRoom());
+                        TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
+                        addLessons(table, day, times, inflater);
+                        fragmentLayout.addView(table);
                     }
-
-                    newRow.addView(newLessonName);
-                    newRow.addView(newLessonRoom);
-
-                    table.addView(newRow);
-                }
 
             }catch (Exception e){
                 Log.e("onCreateView::readJson", e.getMessage(), e);
@@ -251,42 +204,106 @@ public class MainActivity extends AppCompatActivity {
             return rootView;
         }
 
-    }
-    private class HttpRequestSetCurrentWeek extends AsyncTask<Void, Void, String> {
+        private void addLessons(TableLayout table,Day day,ArrayList<String> times,LayoutInflater inflater){
+            for(int i = 0;i<times.size();i++){
+                Lesson lesson = day.getLessons().get(i);
+                if(lesson.getName().equals("none")) continue;
 
-        private RestRequest restRequest = new RestRequest();
-        @Override
-        protected String doInBackground(Void... params) {
-            publishProgress(null);
-            try {
+                TableRow row = (TableRow) inflater.inflate(R.layout.row,table,false);
 
-                RestRequest rest = new RestRequest();
-                return restRequest.in("currentTimeTable", "ИКПИ-53","2")
-                        .GetObjAndStatus(String.class).toString();
-            } catch (Exception e) {
-                Log.e("HttpRequest::Start", e.getMessage(), e);
+                TextView time = (TextView) row.findViewById(R.id.time);
+                TextView lessonName = (TextView) row.findViewById(R.id.lessonName);
+                TextView lessonRoom = (TextView) row.findViewById(R.id.lessonRoom);
+
+                time.setText(times.get(i));
+
+                lessonName.setText(lesson.getName());
+                lessonRoom.setText(lesson.getRoom());
+
+                table.addView(row);
+
+            }
+        }
+
+        private class HttpRequestSetCurrentWeek extends AsyncTask<String, String, WeekWrapper> {
+
+            private RestRequest restRequest = new RestRequest();
+
+            @Override
+            protected void onPreExecute(){
+                progress.setMessage("Loading data...");
+                progress.show();
+            }
+            @Override
+            protected WeekWrapper doInBackground(String... params) {
+                publishProgress("Loading data...");
+                try {
+                    Log.i("HttpRequest", "Start");
+                    RestRequest rest = new RestRequest();
+                    String response = restRequest.in("currentTimeTable", params[0], params[1])
+                            .GetObjAndStatus(String.class).toString();
+                    Log.i("HttpRequest", "Response received");
+                    publishProgress("Processing data...");
+
+                    return new WeekWrapper(response,params[1]);
+
+                } catch (Exception e) {
+                    Log.e("HttpRequest::Start", e.getMessage(), e);
+                }
+
+                return null;
             }
 
-            return null;
-        }
 
-        @Override
-        protected void onProgressUpdate(Void... values) {
-//            super.onProgressUpdate(values);
-//            progress.show();
-        }
+            protected void onProgressUpdate(String value) {
+//            super.onProgressUpdate(value);
+                progress.setMessage(value);
+                progress.show();
+            }
 
-//        @Override
-//        protected void onPostExecute(String response) {
-//            progress.dismiss();
-//            try {
-//                week = new WeekBuilder().buildWeek(response);
-//            }catch (Exception e){
-//                Log.e("HttpRequest::OnPost",e.getMessage(),e);
+//            @Override
+//            protected void onPostExecute(WeekWrapper response) {
+////            super.onPostExecute(response);
+//                Log.i("HttpRequest", "onPost start");
+//                try {
+//                    mWeeks.add(response.getNumOfWeek(), response.getWeek());
+//                    Log.i("HttpRequest", "finished");
+//                } catch (Exception e) {
+//                    Log.e("HttpRequest::OnPost", e.getMessage(), e);
+//                }
+//                progress.dismiss();
+//
 //            }
-//        }
+        }
+        private class WeekWrapper{
+            private String week;
+            private String numOfWeek;
+
+            public WeekWrapper(String week, String numOfWeek) {
+                this.week = week;
+                this.numOfWeek = numOfWeek;
+            }
+
+            public Week getWeek()throws Exception {
+                return new WeekBuilder().buildWeek(week);
+            }
+
+            public void setWeek(String week) {
+                this.week = week;
+            }
+
+            public int getNumOfWeek() {
+                return Integer.parseInt(numOfWeek);
+            }
+
+            public void setNumOfWeek(String numOfWeek) {
+                this.numOfWeek = numOfWeek;
+            }
+        }
 
     }
+
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -301,8 +318,8 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-//            while(backTask.getStatus() != AsyncTask.Status.FINISHED){}
-            return PlaceholderFragment.newInstance(position + 1,week.getDays().get(position),week.getTimes());
+
+            return PlaceholderFragment.newInstance(position+2);
         }
 
         @Override

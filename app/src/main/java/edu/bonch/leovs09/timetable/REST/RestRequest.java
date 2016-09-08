@@ -74,7 +74,11 @@ public class RestRequest {
 
     //Запрашивает некоторый объект. Изменяет статус код. Возвращает объект.
     public <T> T GetObjAndStatus(Class<T> responseType) throws Exception{
+        Log.i("RestRequest","Start GetObjAndSatus");
+
         ResponseEntity<T> rEntity = restTemplate.getForEntity(url,responseType);
+
+        Log.i("RestRequest","Finish GetObjAndSatus");
         statusCode = rEntity.getStatusCode().toString();
         return rEntity.getBody();
     }

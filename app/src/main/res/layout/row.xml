@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/lesson"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingBottom="5sp">
+
+    <TextView android:layout_width="150sp"
+        android:layout_height="fill_parent"
+        android:text="9:00-10:35"
+        android:id="@+id/time"
+        android:layout_column="0"
+        android:background="@color/button_material_light"
+        android:layout_weight="0"
+        android:textAlignment="center"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:nestedScrollingEnabled="false"
+        android:paddingTop="@dimen/abc_text_size_caption_material"
+        android:paddingBottom="@dimen/abc_text_size_caption_material"
+        style="@style/Base.V21.Theme.AppCompat.Light"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <TextView android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="ММвСС"
+        android:id="@+id/lessonName"
+        android:layout_column="1"
+        android:background="@color/colorPrimaryDark"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textIsSelectable="false"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:padding="@dimen/abc_text_size_caption_material"
+        android:singleLine="false"
+        android:inputType="textMultiLine"
+        style="@style/Base.V21.Theme.AppCompat.Light"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <TextView android:layout_width="80sp"
+        android:layout_height="fill_parent"
+        android:text="535/2"
+        android:id="@+id/lessonRoom"
+        android:layout_column="2"
+        android:background="@color/colorPrimary"
+        android:layout_weight="0"
+        android:textAlignment="center"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textIsSelectable="false"
+        android:paddingTop="@dimen/abc_text_size_caption_material"
+        android:paddingBottom="@dimen/abc_text_size_caption_material"
+        android:singleLine="false"
+        style="@style/Base.V21.Theme.AppCompat.Light"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+
+
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="лаб"-->
+    <!--android:id="@+id/lessonType"-->
+    <!--android:layout_column="3"-->
+    <!--style="@style/AlertDialog.AppCompat.Light"-->
+    <!--android:padding="@dimen/abc_text_size_caption_material"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--android:layout_weight="0.5" />-->
+
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Кисель"-->
+    <!--android:id="@+id/lessonTeacher"-->
+    <!--android:layout_column="4"-->
+    <!--style="@style/AlertDialog.AppCompat.Light"-->
+    <!--android:padding="@dimen/abc_text_size_caption_material"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--android:layout_weight="1" />-->
+</TableRow>
