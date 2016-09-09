@@ -242,12 +242,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void refresh(){
-//            if (! this.isDetached()) {
+            if (! this.isDetached()) {
                 getFragmentManager().beginTransaction()
                         .detach(this)
                         .attach(this)
                         .commit();
-//            }
+            }
         }
 
     }

@@ -29,9 +29,9 @@
                 android:id="@+id/weekName"
                 style="@style/Base.Theme.AppCompat.DialogWhenLarge"
                 android:textSize="35dp"
-                android:fontFamily="sans-serif-condensed"
+                android:fontFamily="@string/roboto_black"
                 android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/colorText"
                 android:textColorHighlight="@color/colorAccent" />
         </LinearLayout>
     </ScrollView>

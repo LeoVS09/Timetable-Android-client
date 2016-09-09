@@ -2,20 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryMedium">
 
     <TextView android:id="@+id/dayName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Monday"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="@string/roboto_medium"
         android:textSize="30sp"
         android:textStyle="bold"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:textColor="@color/abc_secondary_text_material_dark"
+        android:textColor="@color/colorHeaders1"
         android:textAlignment="gravity"
         android:layout_gravity="right"
-        android:layout_marginTop="15sp" />
+        android:layout_marginTop="15sp"
+        android:background="@drawable/line_bottom_header"/>
 
     <TableLayout android:id="@+id/dayLessons"
         android:layout_width="match_parent"
