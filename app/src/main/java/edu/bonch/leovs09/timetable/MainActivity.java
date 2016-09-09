@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Week[] mWeeks = new Week[10];
 
+    private PlaceholderFragment[] fragments = new PlaceholderFragment[10];
+
     private ProgressDialog progress;
 
     public Week[]getWeeks() {
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
     public ProgressDialog getProgress() {
         return progress;
+    }
+
+    public PlaceholderFragment[] getFragments(){
+        return fragments;
     }
 
     @Override
@@ -93,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+
 //--------------------------------button for update---------------------------------
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -161,20 +169,27 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            LinearLayout fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);
+            View rootView = inflater.inflate(R.layout.download, container, false);
+            LinearLayout fragmentLayout;
             //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             ObjectMapper objectMapper = new ObjectMapper();
 
 
 
             try {
-//                int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+                int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 
-                int sectionNumber = 2;
+//                int sectionNumber = 2;
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mWeeks  = mainActivity.getWeeks();
-                showWeek(sectionNumber,inflater,fragmentLayout);
+                if(mWeeks[sectionNumber] == null){
+                    new HttpRequestSetCurrentWeek().id(sectionNumber).activity(mainActivity)
+                            .execute( "ИКПИ-53", Integer.toString(sectionNumber));
+                }else {
+                    rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                    fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);
+                    showWeek(sectionNumber, inflater, fragmentLayout);
+                }
                 Log.i("PlaceholderFragment","Created");
             }catch (Exception e){
                 Log.e("onCreateView::readJson", e.getMessage(), e);
@@ -221,6 +236,15 @@ public class MainActivity extends AppCompatActivity {
                 table.addView(row);
 
             }
+        }
+
+        public void refresh(){
+//            if (! this.isDetached()) {
+                getFragmentManager().beginTransaction()
+                        .detach(this)
+                        .attach(this)
+                        .commit();
+//            }
         }
 
     }
@@ -306,14 +330,9 @@ public class MainActivity extends AppCompatActivity {
             Log.i("HttpRequest", "onPost start");
             try {
                 Week[] mWeeks = activity.getWeeks();
-
-                mWeeks[response.getNumOfWeek()] = response.getWeek();
-                FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
                 Log.i("onPostId",Integer.toString(idForReplace));
-                fragmentTransaction.replace(idForReplace,
-//                fragmentTransaction.replace(idForReplace,
-                        PlaceholderFragment.newInstance(response.getNumOfWeek()));
-                fragmentTransaction.commit();
+                mWeeks[response.getNumOfWeek()] = response.getWeek();
+                activity.getFragments()[idForReplace].refresh();
                 Log.i("HttpRequest", "finished");
             } catch (Exception e) {
                 Log.e("HttpRequest::OnPost", e.getMessage(), e);
@@ -355,7 +374,8 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
 
 
-            return DownloadFragment.newInstance(position+displasement);
+            fragments[position+displasement] = PlaceholderFragment.newInstance(position+displasement);
+            return fragments[position+displasement];
         }
 
         @Override
