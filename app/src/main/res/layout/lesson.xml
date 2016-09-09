@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow android:layout_width="match_parent"
+
+
+<RelativeLayout android:id="@+id/lesson"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:id="@+id/lesson"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_marginBottom="10sp"
-    android:background="@drawable/line_bottom_lesson">
-
-
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    android:background="@drawable/line_bottom_lesson"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
         <TextView android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +25,8 @@
             android:fontFamily="@string/roboto_thin"
             android:paddingLeft="@dimen/abc_text_size_caption_material"
             android:paddingRight="@dimen/abc_text_size_caption_material"
-            android:paddingBottom="@dimen/abc_text_size_caption_material" />
+            android:paddingBottom="@dimen/abc_text_size_caption_material"
+            />
 
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -91,4 +88,3 @@
     <!--android:padding="@dimen/abc_text_size_caption_material"-->
     <!--android:background="@color/colorPrimary"-->
     <!--android:layout_weight="1" />-->
-</TableRow>

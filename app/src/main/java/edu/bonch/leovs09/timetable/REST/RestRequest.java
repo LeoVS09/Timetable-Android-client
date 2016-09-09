@@ -8,14 +8,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
 import org.springframework.web.client.RestTemplate;
 /**
  * Created by BoolenTF on 14.08.2016.
  */
 public class RestRequest {
-    final static String serverUrl = "http://timetable.cfapps.io";
+    final static String SERVER_URL ="http://timetable.cfapps.io";
 
     String prefix;
     String url;
@@ -91,7 +90,7 @@ public class RestRequest {
         prefix = prefix.substring(0,prefix.length()-1);
        // Log.i("lol","lol");
         this.prefix = prefix;
-        this.url = serverUrl + "/" + prefix;
+        this.url = SERVER_URL + "/" + prefix;
         Log.i("info",url);
         return this;
     }

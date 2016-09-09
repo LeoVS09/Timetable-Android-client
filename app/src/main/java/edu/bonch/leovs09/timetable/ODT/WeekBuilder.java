@@ -7,6 +7,9 @@ import org.json.simple.parser.JSONParser;
 
 import java.util.ArrayList;
 
+import edu.bonch.leovs09.timetable.R;
+
+
 /**
  * Created by LeoVS09 on 06.09.2016.
  */
@@ -19,12 +22,12 @@ public class WeekBuilder {
     public WeekBuilder(){
         this.nameField = "days";
         this.dayNames = new ArrayList<>();
-        dayNames.add(new DayNames("Monday","Mon"));
-        dayNames.add(new DayNames("Tuesday","Tue"));
-        dayNames.add(new DayNames("Wednesday","Wed"));
-        dayNames.add(new DayNames("Thursday","Thu"));
-        dayNames.add(new DayNames("Friday","Fri"));
-        dayNames.add(new DayNames("Saturday","Sat"));
+        dayNames.add(new DayNames("Понедельник","Mon"));
+        dayNames.add(new DayNames("Вторник","Tue"));
+        dayNames.add(new DayNames("Среда","Wed"));
+        dayNames.add(new DayNames("Четверг","Thu"));
+        dayNames.add(new DayNames("Пятница","Fri"));
+        dayNames.add(new DayNames("Суббота","Sat"));
         this.times = new ArrayList<>();
         times.add("9.00-10.35");
         times.add("10.45-12.20");

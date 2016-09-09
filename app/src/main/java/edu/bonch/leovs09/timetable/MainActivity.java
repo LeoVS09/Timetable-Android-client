@@ -3,19 +3,15 @@ package edu.bonch.leovs09.timetable;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +25,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.Calendar;
+import java.util.Date;
 
 import edu.bonch.leovs09.timetable.ODT.Day;
 import edu.bonch.leovs09.timetable.ODT.Lesson;
@@ -63,20 +60,26 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressDialog progress;
 
-    public Week[]getWeeks() {
-        return mWeeks;
+    private int mStartPage = 0;
+
+    private int CurrentWeek = 2;
+
+    private void setCurrentWeek(){
+        Date date = new Date();
+        Date studyStartDate = getStudyStartDate();
+        Log.d("setCurrentWeek","studyStartDate: " + studyStartDate.toString());
+        date = new Date(date.getTime() - studyStartDate.getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date.getTime());
+        Log.d("setCurrentWeek","currentWeek: " + calendar.get(Calendar.WEEK_OF_YEAR));
     }
 
-    public void setWeeks(Week[] Weeks) {
-        this.mWeeks = Weeks;
+    private Date getStudyStartDate(){
+        return new Date(2016,9,1);
     }
 
-    public ProgressDialog getProgress() {
-        return progress;
-    }
-
-    public PlaceholderFragment[] getFragments(){
-        return fragments;
+    public int getCurrentWeek() {
+        return CurrentWeek;
     }
 
     @Override
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-
+        setCurrentWeek();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
+        mViewPager.setCurrentItem(mStartPage);
 
 //--------------------------------button for update---------------------------------
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -147,10 +150,10 @@ public class MainActivity extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-        private static final String ARG_SECTION_WEEKS = "section_weeks";
+        private static final String WEEK_IN_HEADER = "Неделя № ";
+        private static final String WEEK_IS_CURRENT = " (текущая)";
 
         private Week[] mWeeks;
-        private ProgressDialog progress;
         public PlaceholderFragment() {
         }
 
@@ -202,9 +205,14 @@ public class MainActivity extends AppCompatActivity {
             Week week = mWeeks[sectionNumber];
             ArrayList<String> times;
             TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
-            weekName.setText("week " + sectionNumber);
+            String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
+            if(sectionNumber == ((MainActivity)getActivity()).getCurrentWeek())
+                sTextOfWeekName += WEEK_IS_CURRENT;
+            weekName.setText(sTextOfWeekName);
             times = week.getTimes();
-            Log.i("onCreateView", "week size: " + week.getDays().size());
+
+
+            Log.i("onCreateView", "showWeek");
             for (Day day : week.getDays()) {
                 LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
 //                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
@@ -213,19 +221,18 @@ public class MainActivity extends AppCompatActivity {
 //                fragmentLayout.addView(dayName);
 
 //                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
-                TableLayout table = (TableLayout) dayLayout.findViewById(R.id.dayLessons);
-                addLessons(table, day, times, inflater);
+                addLessons(dayLayout, day, times, inflater);
 //                fragmentLayout.addView(table);
                 fragmentLayout.addView(dayLayout);
             }
         }
 
-        private void addLessons(TableLayout table,Day day,ArrayList<String> times,LayoutInflater inflater){
+        private void addLessons(LinearLayout dayLayout,Day day,ArrayList<String> times,LayoutInflater inflater){
             for(int i = 0;i<times.size();i++){
                 Lesson lesson = day.getLessons().get(i);
                 if(lesson.getName().equals("none")) continue;
 
-                TableRow row = (TableRow) inflater.inflate(R.layout.row,table,false);
+                RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson,dayLayout,false);
 
                 TextView time = (TextView) row.findViewById(R.id.time);
                 TextView lessonName = (TextView) row.findViewById(R.id.lessonName);
@@ -234,9 +241,11 @@ public class MainActivity extends AppCompatActivity {
                 time.setText(times.get(i));
 
                 lessonName.setText(lesson.getName());
-                lessonRoom.setText(lesson.getRoom());
 
-                table.addView(row);
+                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
+                        ? " " : lesson.getRoom());
+
+                dayLayout.addView(row);
 
             }
         }
@@ -368,5 +377,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public Week[]getWeeks() {
+        return mWeeks;
+    }
 
+    public void setWeeks(Week[] Weeks) {
+        this.mWeeks = Weeks;
+    }
+
+    public ProgressDialog getProgress() {
+        return progress;
+    }
+
+    public PlaceholderFragment[] getFragments(){
+        return fragments;
+    }
 }

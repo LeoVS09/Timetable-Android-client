@@ -25,7 +25,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="week 2"
                 android:id="@+id/weekName"
                 style="@style/Base.Theme.AppCompat.DialogWhenLarge"
                 android:textSize="35dp"
