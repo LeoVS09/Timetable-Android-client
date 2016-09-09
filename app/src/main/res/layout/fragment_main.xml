@@ -27,9 +27,12 @@
                 android:layout_height="wrap_content"
                 android:text="New Text"
                 android:id="@+id/weekName"
-                android:layout_gravity="right"
                 style="@style/Base.Theme.AppCompat.DialogWhenLarge"
-                android:textSize="@dimen/abc_text_size_display_1_material" />
+                android:textSize="35dp"
+                android:fontFamily="sans-serif-condensed"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:textColorHighlight="@color/colorAccent" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

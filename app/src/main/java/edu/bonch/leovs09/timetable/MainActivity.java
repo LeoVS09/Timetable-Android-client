@@ -202,18 +202,21 @@ public class MainActivity extends AppCompatActivity {
             Week week = mWeeks[sectionNumber];
             ArrayList<String> times;
             TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
-            weekName.setText(sectionNumber + " week");
+            weekName.setText("week " + sectionNumber);
             times = week.getTimes();
             Log.i("onCreateView", "week size: " + week.getDays().size());
             for (Day day : week.getDays()) {
-
-                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
+                LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
+//                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
+                TextView dayName = (TextView) dayLayout.findViewById(R.id.dayName);
                 dayName.setText(day.getName());
-                fragmentLayout.addView(dayName);
+//                fragmentLayout.addView(dayName);
 
-                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
+//                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
+                TableLayout table = (TableLayout) dayLayout.findViewById(R.id.dayLessons);
                 addLessons(table, day, times, inflater);
-                fragmentLayout.addView(table);
+//                fragmentLayout.addView(table);
+                fragmentLayout.addView(dayLayout);
             }
         }
 
@@ -249,46 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static class DownloadFragment extends Fragment{
-        private Week[] mWeeks;
 
-
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public static DownloadFragment newInstance(int sectionNumber) {
-            DownloadFragment fragment = new DownloadFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-            View rootView = inflater.inflate(R.layout.download, container, false);
-            MainActivity mainActivity = (MainActivity) getActivity();
-            mWeeks  = mainActivity.getWeeks();
-            int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-
-//            if(mWeeks[sectionNumber] == null){
-                View downloadContainer = rootView.findViewById(R.id.download_container);
-                    int id = View.generateViewId();
-                    downloadContainer.setId(id);
-
-                try {
-                    new HttpRequestSetCurrentWeek().id(id)
-                            .activity((MainActivity) getActivity())
-                            .execute( "ИКПИ-53", Integer.toString(sectionNumber));
-                } catch (Exception e) {
-                    Log.e("PageAdapter:", e.getMessage(), e);
-                }
-                return rootView;
-
-//            }
-//            return PlaceholderFragment.newInstance(sectionNumber).getView();
-
-        }
-    }
     private static class HttpRequestSetCurrentWeek extends AsyncTask<String, String, WeekWrapper> {
 
         private RestRequest restRequest = new RestRequest();

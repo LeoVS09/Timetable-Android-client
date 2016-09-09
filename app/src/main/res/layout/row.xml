@@ -3,56 +3,72 @@
     android:layout_height="wrap_content"
     android:id="@+id/lesson"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:paddingBottom="5sp">
-
-    <TextView android:layout_width="150sp"
-        android:layout_height="fill_parent"
-        android:text="9:00-10:35"
-        android:id="@+id/time"
-        android:layout_column="0"
-        android:background="@color/button_material_light"
-        android:layout_weight="0"
-        android:textAlignment="center"
-        android:textSize="@dimen/abc_text_size_large_material"
-        android:nestedScrollingEnabled="false"
-        android:paddingTop="@dimen/abc_text_size_caption_material"
-        android:paddingBottom="@dimen/abc_text_size_caption_material"
-        style="@style/Base.V21.Theme.AppCompat.Light"
-        xmlns:android="http://schemas.android.com/apk/res/android" />
-
-    <TextView android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="ММвСС"
-        android:id="@+id/lessonName"
-        android:layout_column="1"
-        android:background="@color/colorPrimaryDark"
-        android:layout_weight="1"
-        android:textAlignment="center"
-        android:textIsSelectable="false"
-        android:textSize="@dimen/abc_text_size_large_material"
-        android:padding="@dimen/abc_text_size_caption_material"
-        android:singleLine="false"
-        android:inputType="textMultiLine"
-        style="@style/Base.V21.Theme.AppCompat.Light"
-        xmlns:android="http://schemas.android.com/apk/res/android" />
-
-    <TextView android:layout_width="80sp"
-        android:layout_height="fill_parent"
-        android:text="535/2"
-        android:id="@+id/lessonRoom"
-        android:layout_column="2"
-        android:background="@color/colorPrimary"
-        android:layout_weight="0"
-        android:textAlignment="center"
-        android:textSize="@dimen/abc_text_size_large_material"
-        android:textIsSelectable="false"
-        android:paddingTop="@dimen/abc_text_size_caption_material"
-        android:paddingBottom="@dimen/abc_text_size_caption_material"
-        android:singleLine="false"
-        style="@style/Base.V21.Theme.AppCompat.Light"
-        xmlns:android="http://schemas.android.com/apk/res/android" />
+    android:layout_marginBottom="10sp"
+    android:background="@drawable/card_background">
 
 
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ММвСС"
+            android:id="@+id/lessonName"
+            android:layout_column="1"
+            android:layout_weight="1"
+            android:textIsSelectable="false"
+            android:textSize="45sp"
+            android:singleLine="true"
+            style="@style/Base.V21.Theme.AppCompat.Light"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:ellipsize="end"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/lessonNameText"
+            android:fontFamily="sans-serif-thin"
+            android:paddingLeft="@dimen/abc_text_size_caption_material"
+            android:paddingRight="@dimen/abc_text_size_caption_material"
+            android:paddingBottom="@dimen/abc_text_size_caption_material" />
+
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="9:00-10:35"
+            android:id="@+id/time"
+            android:layout_column="0"
+            android:layout_weight="0"
+            android:textSize="@dimen/abc_text_size_large_material"
+            android:nestedScrollingEnabled="false"
+            android:paddingBottom="@dimen/abc_text_size_caption_material"
+            style="@style/Base.V21.Theme.AppCompat.Light"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_alignParentLeft="true"
+            android:singleLine="true"
+            android:layout_below="@+id/lessonName"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@color/colorPrimary"
+            android:paddingLeft="@dimen/abc_text_size_caption_material" />
+
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="535/2"
+            android:id="@+id/lessonRoom"
+            android:layout_column="2"
+            android:layout_weight="0"
+            android:textAlignment="center"
+            android:textSize="@dimen/abc_text_size_large_material"
+            android:paddingBottom="@dimen/abc_text_size_caption_material"
+            android:singleLine="true"
+            style="@style/Base.V21.Theme.AppCompat.Light"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/lessonName"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:paddingRight="20sp" />
+
+    </RelativeLayout>
 
     <!--<TextView-->
     <!--android:layout_width="match_parent"-->
