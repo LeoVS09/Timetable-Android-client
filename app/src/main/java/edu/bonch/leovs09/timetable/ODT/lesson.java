@@ -70,4 +70,12 @@ public class Lesson {
     public void setRoom(String room) {
         this.room = room;
     }
+    @Override
+    public String toString(){
+        return name + ": " + room;
+    }
+
+    public  boolean isNameEmpty(){
+        return name.isEmpty() || name.equals("none");
+    }
 }

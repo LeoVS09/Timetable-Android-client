@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#FAFAFA</color>
     <color name="colorPrimaryMedium">#F5F5F5</color>
-    <color name="colorPrimaryDark">#9E9E9E</color>
+    <color name="colorPrimaryDark">#FF6E40</color>
     <color name="colorAccent">#FF6E40</color>
     <color name="colorText">#212121</color>
     <color name="colorHeaders2">#FFA726</color>
@@ -11,4 +11,5 @@
     <color name="colorAppBar">#FF6E40</color>
     <color name="colorShadow">#3dbcbcbc</color>
     <color name="colorShadowMedium">#949e9e9e</color>
+    <color name="colorLine">#9E9E9E</color>
 </resources>

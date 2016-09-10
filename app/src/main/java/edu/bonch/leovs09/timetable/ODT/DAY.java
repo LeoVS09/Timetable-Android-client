@@ -1,5 +1,7 @@
 package edu.bonch.leovs09.timetable.ODT;
 
+import android.util.Log;
+
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -37,5 +39,11 @@ public class Day {
         this.lessons = lessons;
     }
 
+    public boolean haveLessons(){
+        boolean have = false;
+        for(Lesson lesson: lessons) if(!lesson.isNameEmpty()) have = true;
+        if(!lessons.isEmpty()) Log.d("Day","haveLessons :" + lessons.toString());
+        return have;
+    }
 
 }

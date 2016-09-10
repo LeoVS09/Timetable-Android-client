@@ -72,6 +72,14 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(date.getTime());
         Log.d("setCurrentWeek","currentWeek: " + calendar.get(Calendar.WEEK_OF_YEAR));
+        if(CurrentWeek > 1){
+            mStartPage = 1;
+            if(CurrentWeek > 2){
+                mStartPage = 2;
+            }
+        }
+        displasement = CurrentWeek - mStartPage;
+
     }
 
     private Date getStudyStartDate(){
@@ -214,16 +222,18 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i("onCreateView", "showWeek");
             for (Day day : week.getDays()) {
-                LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
+                if(day.haveLessons()) {
+                    LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
 //                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
-                TextView dayName = (TextView) dayLayout.findViewById(R.id.dayName);
-                dayName.setText(day.getName());
+                    TextView dayName = (TextView) dayLayout.findViewById(R.id.dayName);
+                    dayName.setText(day.getName());
 //                fragmentLayout.addView(dayName);
 
 //                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
-                addLessons(dayLayout, day, times, inflater);
+                    addLessons(dayLayout, day, times, inflater);
 //                fragmentLayout.addView(table);
-                fragmentLayout.addView(dayLayout);
+                    fragmentLayout.addView(dayLayout);
+                }
             }
         }
 
