@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 mWeeks  = mainActivity.getWeeks();
                 if(mWeeks[sectionNumber] == null){
                     new HttpRequestSetCurrentWeek().id(sectionNumber).activity(mainActivity)
-                            .execute( "ИКПИ-53", Integer.toString(sectionNumber));
+                            .execute( "ИКПИ-52", Integer.toString(sectionNumber));
                 }else {
                     rootView = inflater.inflate(R.layout.fragment_main, container, false);
                     fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);

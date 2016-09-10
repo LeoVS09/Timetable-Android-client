@@ -32,7 +32,7 @@
                 android:fontFamily="@string/roboto_black"
                 android:textStyle="bold"
                 android:textColor="@color/colorText"
-                android:textColorHighlight="@color/colorAccent" />
+                android:layout_marginBottom="5dp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
