@@ -21,17 +21,17 @@
             android:id="@+id/lin_layout"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="week 2"
-                android:id="@+id/weekName"
-                style="@style/Base.Theme.AppCompat.DialogWhenLarge"
-                android:textSize="35dp"
-                android:fontFamily="@string/roboto_black"
-                android:textStyle="bold"
-                android:textColor="@color/colorText"
-                android:layout_marginBottom="5dp" />
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="week 2"-->
+                <!--android:id="@+id/weekName"-->
+                <!--style="@style/Base.Theme.AppCompat.DialogWhenLarge"-->
+                <!--android:textSize="35dp"-->
+                <!--android:fontFamily="@string/roboto_black"-->
+                <!--android:textStyle="bold"-->
+                <!--android:textColor="@color/colorText"-->
+                <!--android:layout_marginBottom="5dp" />-->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

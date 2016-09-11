@@ -20,8 +20,6 @@ import android.view.ViewGroup;
 
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -63,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private int mStartPage = 0;
 
     private int CurrentWeek = 2;
+
+    private static final String WEEK_IN_HEADER = "Неделя № ";
+    private static final String WEEK_IS_CURRENT = " (текущая)";
 
     private void setCurrentWeek(){
         Date date = new Date();
@@ -109,9 +110,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter.notifyDataSetChanged();
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(mStartPage);
 
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                setAppBarTitle(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        setAppBarTitle(mStartPage);
 //--------------------------------button for update---------------------------------
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -126,6 +146,13 @@ public class MainActivity extends AppCompatActivity {
 //----------------------------------------------------------------------------------
     }
 
+    private void setAppBarTitle(int position){
+        int sectionNumber = position+displasement;
+        String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
+        if(sectionNumber == getCurrentWeek())
+            sTextOfWeekName += WEEK_IS_CURRENT;
+        getSupportActionBar().setTitle(sTextOfWeekName);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -195,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 mWeeks  = mainActivity.getWeeks();
                 if(mWeeks[sectionNumber] == null){
                     new HttpRequestSetCurrentWeek().id(sectionNumber).activity(mainActivity)
-                            .execute( "ИКПИ-52", Integer.toString(sectionNumber));
+                            .execute( "ИКПИ-53", Integer.toString(sectionNumber));
                 }else {
                     rootView = inflater.inflate(R.layout.fragment_main, container, false);
                     fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);
@@ -212,11 +239,12 @@ public class MainActivity extends AppCompatActivity {
         private void showWeek(int sectionNumber,LayoutInflater inflater,LinearLayout fragmentLayout){
             Week week = mWeeks[sectionNumber];
             ArrayList<String> times;
-            TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
+//            TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
             String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
             if(sectionNumber == ((MainActivity)getActivity()).getCurrentWeek())
                 sTextOfWeekName += WEEK_IS_CURRENT;
-            weekName.setText(sTextOfWeekName);
+//            weekName.setText(sTextOfWeekName);
+
             times = week.getTimes();
 
 
@@ -242,13 +270,13 @@ public class MainActivity extends AppCompatActivity {
                 Lesson lesson = day.getLessons().get(i);
                 if(lesson.getName().equals("none")) continue;
 
-                RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson,dayLayout,false);
+                RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson_short,dayLayout,false);
 
-                TextView time = (TextView) row.findViewById(R.id.time);
+                TextView time = (TextView) row.findViewById(R.id.timeStart);
                 TextView lessonName = (TextView) row.findViewById(R.id.lessonName);
                 TextView lessonRoom = (TextView) row.findViewById(R.id.lessonRoom);
 
-                time.setText(times.get(i));
+                time.setText(timeStart(times.get(i)));
 
                 lessonName.setText(lesson.getName());
 
@@ -260,6 +288,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        private String timeStart(String fullTime){
+            int dr = fullTime.indexOf("-");
+            return fullTime.substring(0,dr);
+        }
         public void refresh(){
             if (! this.isDetached()) {
                 getFragmentManager().beginTransaction()
@@ -347,6 +379,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -356,9 +389,13 @@ public class MainActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
 
-
-            fragments[position+displasement] = PlaceholderFragment.newInstance(position+displasement);
-            return fragments[position+displasement];
+            int sectionNumber = position+displasement;
+//            String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
+//            if(sectionNumber == getCurrentWeek())
+//                sTextOfWeekName += WEEK_IS_CURRENT;
+//            getSupportActionBar().setTitle(sTextOfWeekName);
+            fragments[sectionNumber] = PlaceholderFragment.newInstance(sectionNumber);
+            return fragments[sectionNumber];
         }
 
         @Override
