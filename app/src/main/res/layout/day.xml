@@ -11,14 +11,14 @@
         android:layout_height="wrap_content"
         android:text="Monday"
         android:fontFamily="@string/roboto_medium"
-        android:textSize="30sp"
-        android:textStyle="bold"
+        android:textSize="@dimen/text_size_display1"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:textColor="@color/colorHeaders1"
         android:textAlignment="gravity"
         android:layout_gravity="right"
         android:layout_marginTop="15sp"
-        android:layout_marginRight="15sp" />
+        android:layout_marginRight="15sp"
+         />
 
 
 

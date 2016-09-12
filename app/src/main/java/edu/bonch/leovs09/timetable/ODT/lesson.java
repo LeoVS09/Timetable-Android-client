@@ -31,13 +31,21 @@ public class Lesson {
         Object obj = json.get("name");
         this.name = obj == null ? "null" : obj.toString();
          obj = json.get("type");
-        this.type = obj == null ? "null" : obj.toString();
+        this.type = formatType(obj);
         obj = json.get("teacher");
         this.teacher = obj == null ? "null" : obj.toString();
         obj = json.get("room");
         this.room = obj == null ? "null" : obj.toString();
     }
 
+    private String formatType(Object obj){
+        String type =  obj == null ? "null" : obj.toString();
+        if(type.equals("0")) type = "практика";
+        if(type.equals("1")) type = "лабораторная";
+        if(type.equals("2")) type = "лекция";
+        if(type.equals("-1")) type = "null";
+        return type;
+    }
 
     public String getName() {
         return name;

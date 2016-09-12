@@ -265,18 +265,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private void addLessons(LinearLayout dayLayout,Day day,ArrayList<String> times,LayoutInflater inflater){
+        private void addLessons(LinearLayout dayLayout, final Day day, ArrayList<String> times, final LayoutInflater inflater){
             for(int i = 0;i<times.size();i++){
                 Lesson lesson = day.getLessons().get(i);
                 if(lesson.getName().equals("none")) continue;
 
                 RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson_short,dayLayout,false);
 
+                row.setOnClickListener(new OnClickShortToFull(i,day.getLessons().get(i),inflater,times.get(i)));
+
                 TextView time = (TextView) row.findViewById(R.id.timeStart);
                 TextView lessonName = (TextView) row.findViewById(R.id.lessonName);
                 TextView lessonRoom = (TextView) row.findViewById(R.id.lessonRoom);
 
-                time.setText(timeStart(times.get(i)));
+                time.setText(startOfLesson(times.get(i)));
 
                 lessonName.setText(lesson.getName());
 
@@ -288,7 +290,81 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private String timeStart(String fullTime){
+        private class OnClickShortToFull implements View.OnClickListener{
+            private int i;
+            private Lesson lesson;
+            private LayoutInflater inflater;
+            private String time;
+            public OnClickShortToFull(int indexOfLesson,Lesson lesson,LayoutInflater inflater,String time){
+                this.i = indexOfLesson;
+                this.lesson = lesson;
+                this.inflater = inflater;
+                this.time = time;
+            }
+            @Override
+            public void onClick(View v){
+                ViewGroup parent = (ViewGroup) v.getParent();
+                int index = parent.indexOfChild(v);
+                parent.removeView(v);
+                v = inflater.inflate(R.layout.lesson_full,parent,false);
+                TextView timeStart = (TextView) v.findViewById(R.id.timeStart);
+                TextView timeEnd = (TextView) v.findViewById(R.id.timeEnd);
+                TextView lessonName = (TextView) v.findViewById(R.id.lessonName);
+                TextView lessonRoom = (TextView) v.findViewById(R.id.lessonRoom);
+                TextView teacher = (TextView) v.findViewById(R.id.teacher);
+                TextView type = (TextView) v.findViewById(R.id.type);
+                timeStart.setText(startOfLesson(time));
+                timeEnd.setText(endOfLesson(time));
+                lessonName.setText(lesson.getName());
+                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
+                        ? " " : lesson.getRoom());
+                type.setText(((lesson.getType() == null || lesson.getType().equals("null"))
+                        ? " " : lesson.getType()));
+                teacher.setText((lesson.getTeacher() == null || lesson.getTeacher().equals("null"))
+                        ? " " : lesson.getTeacher());
+                v.setOnClickListener(new OnClickFullToShort(i,lesson,inflater,time));
+                parent.addView(v,index);
+            }
+            private String endOfLesson(String fullTime){
+                int dr = fullTime.indexOf("-");
+                return fullTime.substring(dr+1);
+            }
+        }
+
+        private class OnClickFullToShort implements View.OnClickListener{
+            private int i;
+            private Lesson lesson;
+            private LayoutInflater inflater;
+            private String time;
+            public OnClickFullToShort(int indexOfLesson,Lesson lesson,LayoutInflater inflater,String time){
+                this.i = indexOfLesson;
+                this.lesson = lesson;
+                this.inflater = inflater;
+                this.time = time;
+            }
+            @Override
+            public void onClick(View v){
+                ViewGroup parent = (ViewGroup) v.getParent();
+                int index = parent.indexOfChild(v);
+                parent.removeView(v);
+                v = inflater.inflate(R.layout.lesson_short,parent,false);
+                TextView timeStart = (TextView) v.findViewById(R.id.timeStart);
+                TextView lessonName = (TextView) v.findViewById(R.id.lessonName);
+                TextView lessonRoom = (TextView) v.findViewById(R.id.lessonRoom);
+                timeStart.setText(startOfLesson(time));
+                lessonName.setText(lesson.getName());
+                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
+                        ? " " : lesson.getRoom());
+                v.setOnClickListener(new OnClickShortToFull(i,lesson,inflater,time));
+                parent.addView(v,index);
+            }
+            private String endOfLesson(String fullTime){
+                int dr = fullTime.indexOf("-");
+                return fullTime.substring(dr+1);
+            }
+        }
+
+        private String startOfLesson(String fullTime){
             int dr = fullTime.indexOf("-");
             return fullTime.substring(0,dr);
         }
