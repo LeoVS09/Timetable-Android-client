@@ -27,7 +27,7 @@
             android:paddingRight="@dimen/abc_text_size_caption_material" />
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="9:00-10:35"
+            android:text="9:00"
             android:id="@+id/timeStart"
             android:layout_column="0"
             android:layout_weight="0"

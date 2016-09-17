@@ -1,6 +1,8 @@
 package edu.bonch.leovs09.timetable;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import edu.bonch.leovs09.timetable.Adapters.SectionsPagerAdapter;
+import edu.bonch.leovs09.timetable.AsynkTasks.HttpRequestSetCurrentWeek;
+import edu.bonch.leovs09.timetable.Fragments.PlaceholderFragment;
 import edu.bonch.leovs09.timetable.ODT.Day;
 import edu.bonch.leovs09.timetable.ODT.Lesson;
 import edu.bonch.leovs09.timetable.ODT.Week;
@@ -62,8 +67,14 @@ public class MainActivity extends AppCompatActivity {
 
     private int CurrentWeek = 2;
 
-    private static final String WEEK_IN_HEADER = "Неделя № ";
-    private static final String WEEK_IS_CURRENT = " (текущая)";
+    private String STATIC_GROUP;
+
+    private Resources resources;
+
+    private String WEEK_IN_HEADER;
+    private String WEEK_IS_CURRENT;
+    private String KEY_GROUP;
+    private String PREFERENCES_FILE_NAME;
 
     private void setCurrentWeek(){
         Date date = new Date();
@@ -91,9 +102,19 @@ public class MainActivity extends AppCompatActivity {
         return CurrentWeek;
     }
 
+    private void setResources(){
+        resources = getResources();
+        WEEK_IN_HEADER = resources.getString(R.string.week_is);
+        WEEK_IS_CURRENT = resources.getString(R.string.week_current);
+        KEY_GROUP = resources.getString(R.string.key_group);
+        PREFERENCES_FILE_NAME = resources.getString(R.string.preferences_file_name);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setResources();
         setContentView(R.layout.activity_main);
         progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -106,10 +127,11 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
 
+        SharedPreferences prefs = getSharedPreferences(PREFERENCES_FILE_NAME,MODE_PRIVATE);
+        STATIC_GROUP = prefs.getString(KEY_GROUP,"");
 
 
-
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(),displasement,fragments,STATIC_GROUP);
         mSectionsPagerAdapter.notifyDataSetChanged();
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setCurrentItem(mStartPage);
@@ -179,326 +201,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        private static final String WEEK_IN_HEADER = "Неделя № ";
-        private static final String WEEK_IS_CURRENT = " (текущая)";
-
-        private Week[] mWeeks;
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-            View rootView = inflater.inflate(R.layout.download, container, false);
-            LinearLayout fragmentLayout;
-            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            ObjectMapper objectMapper = new ObjectMapper();
 
 
 
-            try {
-                int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-
-//                int sectionNumber = 2;
-                MainActivity mainActivity = (MainActivity) getActivity();
-                mWeeks  = mainActivity.getWeeks();
-                if(mWeeks[sectionNumber] == null){
-                    new HttpRequestSetCurrentWeek().id(sectionNumber).activity(mainActivity)
-                            .execute( "ИКПИ-53", Integer.toString(sectionNumber));
-                }else {
-                    rootView = inflater.inflate(R.layout.fragment_main, container, false);
-                    fragmentLayout = (LinearLayout) rootView.findViewById(R.id.lin_layout);
-                    showWeek(sectionNumber, inflater, fragmentLayout);
-                }
-                Log.i("PlaceholderFragment","Created");
-            }catch (Exception e){
-                Log.e("onCreateView::readJson", e.getMessage(), e);
-            }
-//            textView.setText(getArguments().getString(ARG_SECTION_TEXT));
-            return rootView;
-        }
-
-        private void showWeek(int sectionNumber,LayoutInflater inflater,LinearLayout fragmentLayout){
-            Week week = mWeeks[sectionNumber];
-            ArrayList<String> times;
-//            TextView weekName = (TextView) fragmentLayout.findViewById(R.id.weekName);
-            String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
-            if(sectionNumber == ((MainActivity)getActivity()).getCurrentWeek())
-                sTextOfWeekName += WEEK_IS_CURRENT;
-//            weekName.setText(sTextOfWeekName);
-
-            times = week.getTimes();
-
-
-            Log.i("onCreateView", "showWeek");
-            for (Day day : week.getDays()) {
-                if(day.haveLessons()) {
-                    LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
-//                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
-                    TextView dayName = (TextView) dayLayout.findViewById(R.id.dayName);
-                    dayName.setText(day.getName());
-//                fragmentLayout.addView(dayName);
-
-//                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
-                    addLessons(dayLayout, day, times, inflater);
-//                fragmentLayout.addView(table);
-                    fragmentLayout.addView(dayLayout);
-                }
-            }
-        }
-
-        private void addLessons(LinearLayout dayLayout, final Day day, ArrayList<String> times, final LayoutInflater inflater){
-            for(int i = 0;i<times.size();i++){
-                Lesson lesson = day.getLessons().get(i);
-                if(lesson.getName().equals("none")) continue;
-
-                RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson_short,dayLayout,false);
-
-                row.setOnClickListener(new OnClickShortToFull(i,day.getLessons().get(i),inflater,times.get(i)));
-
-                TextView time = (TextView) row.findViewById(R.id.timeStart);
-                TextView lessonName = (TextView) row.findViewById(R.id.lessonName);
-                TextView lessonRoom = (TextView) row.findViewById(R.id.lessonRoom);
-
-                time.setText(startOfLesson(times.get(i)));
-
-                lessonName.setText(lesson.getName());
-
-                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
-                        ? " " : lesson.getRoom());
-
-                dayLayout.addView(row);
-
-            }
-        }
-
-        private class OnClickShortToFull implements View.OnClickListener{
-            private int i;
-            private Lesson lesson;
-            private LayoutInflater inflater;
-            private String time;
-            public OnClickShortToFull(int indexOfLesson,Lesson lesson,LayoutInflater inflater,String time){
-                this.i = indexOfLesson;
-                this.lesson = lesson;
-                this.inflater = inflater;
-                this.time = time;
-            }
-            @Override
-            public void onClick(View v){
-                ViewGroup parent = (ViewGroup) v.getParent();
-                int index = parent.indexOfChild(v);
-                parent.removeView(v);
-                v = inflater.inflate(R.layout.lesson_full,parent,false);
-                TextView timeStart = (TextView) v.findViewById(R.id.timeStart);
-                TextView timeEnd = (TextView) v.findViewById(R.id.timeEnd);
-                TextView lessonName = (TextView) v.findViewById(R.id.lessonName);
-                TextView lessonRoom = (TextView) v.findViewById(R.id.lessonRoom);
-                TextView teacher = (TextView) v.findViewById(R.id.teacher);
-                TextView type = (TextView) v.findViewById(R.id.type);
-                timeStart.setText(startOfLesson(time));
-                timeEnd.setText(endOfLesson(time));
-                lessonName.setText(lesson.getName());
-                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
-                        ? " " : lesson.getRoom());
-                type.setText(((lesson.getType() == null || lesson.getType().equals("null"))
-                        ? " " : lesson.getType()));
-                teacher.setText((lesson.getTeacher() == null || lesson.getTeacher().equals("null"))
-                        ? " " : lesson.getTeacher());
-                v.setOnClickListener(new OnClickFullToShort(i,lesson,inflater,time));
-                parent.addView(v,index);
-            }
-            private String endOfLesson(String fullTime){
-                int dr = fullTime.indexOf("-");
-                return fullTime.substring(dr+1);
-            }
-        }
-
-        private class OnClickFullToShort implements View.OnClickListener{
-            private int i;
-            private Lesson lesson;
-            private LayoutInflater inflater;
-            private String time;
-            public OnClickFullToShort(int indexOfLesson,Lesson lesson,LayoutInflater inflater,String time){
-                this.i = indexOfLesson;
-                this.lesson = lesson;
-                this.inflater = inflater;
-                this.time = time;
-            }
-            @Override
-            public void onClick(View v){
-                ViewGroup parent = (ViewGroup) v.getParent();
-                int index = parent.indexOfChild(v);
-                parent.removeView(v);
-                v = inflater.inflate(R.layout.lesson_short,parent,false);
-                TextView timeStart = (TextView) v.findViewById(R.id.timeStart);
-                TextView lessonName = (TextView) v.findViewById(R.id.lessonName);
-                TextView lessonRoom = (TextView) v.findViewById(R.id.lessonRoom);
-                timeStart.setText(startOfLesson(time));
-                lessonName.setText(lesson.getName());
-                lessonRoom.setText((lesson.getRoom() == null || lesson.getRoom().equals("null"))
-                        ? " " : lesson.getRoom());
-                v.setOnClickListener(new OnClickShortToFull(i,lesson,inflater,time));
-                parent.addView(v,index);
-            }
-            private String endOfLesson(String fullTime){
-                int dr = fullTime.indexOf("-");
-                return fullTime.substring(dr+1);
-            }
-        }
-
-        private String startOfLesson(String fullTime){
-            int dr = fullTime.indexOf("-");
-            return fullTime.substring(0,dr);
-        }
-        public void refresh(){
-            if (! this.isDetached()) {
-                getFragmentManager().beginTransaction()
-                        .detach(this)
-                        .attach(this)
-                        .commit();
-            }
-        }
-
-    }
-
-
-    private static class HttpRequestSetCurrentWeek extends AsyncTask<String, String, WeekWrapper> {
-
-        private RestRequest restRequest = new RestRequest();
-        private MainActivity activity;
-        private int idForReplace;
-        public HttpRequestSetCurrentWeek activity(MainActivity activity){
-            this.activity = activity;
-            return this;
-        }
-        public HttpRequestSetCurrentWeek id(int idForReplace){
-            this.idForReplace = idForReplace;
-            return this;
-        }
 
 
 
-        @Override
-        protected WeekWrapper doInBackground(String... params) {
-            try {
-                Log.i("HttpRequest", "Start");
-                RestRequest rest = new RestRequest();
-                String response = restRequest.in("currentTimeTable", params[0], params[1])
-                        .GetObjAndStatus(String.class).toString();
-                Log.i("HttpRequest", "Response received");
-
-                return new WeekWrapper(response,params[1]);
-
-            } catch (Exception e) {
-                Log.e("HttpRequest::StartError", e.getMessage(), e);
-            }
-
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(WeekWrapper response) {
-//            super.onPostExecute(response);
-            Log.i("HttpRequest", "onPost start");
-            try {
-                Week[] mWeeks = activity.getWeeks();
-                Log.i("onPostId",Integer.toString(idForReplace));
-                mWeeks[response.getNumOfWeek()] = response.getWeek();
-                activity.getFragments()[idForReplace].refresh();
-                Log.i("HttpRequest", "finished");
-            } catch (Exception e) {
-                Log.e("HttpRequest::OnPost", e.getMessage(), e);
-            }
-        }
-    }
-    private  static class WeekWrapper{
-        private Week week;
-        private int numOfWeek;
-
-        public WeekWrapper(String week, String numOfWeek) throws Exception {
-            this.week = new WeekBuilder().buildWeek(week);
-            this.numOfWeek = Integer.parseInt(numOfWeek);
-        }
-
-        public Week getWeek(){
-            return week;
-        }
-
-        public int getNumOfWeek() {
-            return numOfWeek;
-        }
-
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-
-            int sectionNumber = position+displasement;
-//            String sTextOfWeekName = WEEK_IN_HEADER + Integer.toString(sectionNumber);
-//            if(sectionNumber == getCurrentWeek())
-//                sTextOfWeekName += WEEK_IS_CURRENT;
-//            getSupportActionBar().setTitle(sTextOfWeekName);
-            fragments[sectionNumber] = PlaceholderFragment.newInstance(sectionNumber);
-            return fragments[sectionNumber];
-        }
-
-        @Override
-        public int getCount() {
-            // Show 6 total pages.
-            return 6;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "Monday";
-                case 1:
-                    return "Tuesday";
-                case 2:
-                    return "Wednesday";
-                case 3:
-                    return "Thursday";
-                case 4:
-                    return "Friday";
-                case 5:
-                    return "Saturday";
-            }
-            return null;
-        }
-    }
 
     public Week[]getWeeks() {
         return mWeeks;

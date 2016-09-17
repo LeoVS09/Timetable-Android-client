@@ -1,0 +1,17 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAppBar"
+    tools:context="edu.bonch.leovs09.timetable.SignInActivity">
+
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBarSignIn"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:foreground="@color/abc_primary_text_disable_only_material_dark" />
+</RelativeLayout>
