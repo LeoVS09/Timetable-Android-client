@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +24,7 @@ import org.json.simple.parser.JSONParser;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import edu.bonch.leovs09.timetable.Adapters.GroupListAdapter;
 import edu.bonch.leovs09.timetable.AsynkTasks.HttpRequest;
 import edu.bonch.leovs09.timetable.REST.RestRequest;
 
@@ -74,10 +76,7 @@ public class SignInActivity extends AppCompatActivity {
         @Override
         public void run() {
             // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.show();
-            }
+
             mControlsView.setVisibility(View.VISIBLE);
         }
     };
@@ -107,6 +106,7 @@ public class SignInActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private String KEY_GROUP;
     private String PREFERENCES_FILE_NAME;
+    private String CHANGE_GROUP_KEY;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,12 +117,16 @@ public class SignInActivity extends AppCompatActivity {
 
         mVisible = true;
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Выберете вашу группу");
     }
 
     private void setResources(){
         resources = getResources();
         KEY_GROUP = resources.getString(R.string.key_group);
         PREFERENCES_FILE_NAME = resources.getString(R.string.preferences_file_name);
+        CHANGE_GROUP_KEY = resources.getString(R.string.change_group_key);
     }
 
 
@@ -132,12 +136,16 @@ public class SignInActivity extends AppCompatActivity {
         int index = parent.indexOfChild(v);
 
         View rel = getLayoutInflater().inflate(R.layout.fragment_sign_in,parent,false);
+        parent.removeView(v);
         parent.addView(rel,index);
 
         list = (ListView) findViewById(R.id.groups);
         list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        ArrayAdapter<String> groupsAdapter = new ArrayAdapter<String>(this,R.layout.group_view,groups);
+
+        GroupListAdapter<String> groupsAdapter = new GroupListAdapter<>(this,groups);
+
         list.setAdapter(groupsAdapter);
+        list.setSelection(0);
 
         Button button = (Button) parent.findViewById(R.id.choice_button);
         button.setOnClickListener(new CheckedListener());
@@ -149,6 +157,7 @@ public class SignInActivity extends AppCompatActivity {
             String choised = groups.get(list.getCheckedItemPosition());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(KEY_GROUP,choised);
+            editor.putBoolean(CHANGE_GROUP_KEY,false);
             editor.commit();
             toggle();
         }
@@ -157,6 +166,11 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        boolean change = prefs.getBoolean(CHANGE_GROUP_KEY,true);
+        if(!change){
+            String staticGroup = prefs.getString(KEY_GROUP,"null");
+            if(!staticGroup.equals("null")) toggle();
+        }
         new HttpRequestSetListOfGroups().activity(this).execute();
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
@@ -204,10 +218,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void hide() {
         // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
+
 //        mControlsView.setVisibility(View.GONE);
         mVisible = false;
 

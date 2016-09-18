@@ -3,8 +3,18 @@
 
 <CheckedTextView android:id="@+id/groupView"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeightSmall"
+    android:layout_height="wrap_content"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:gravity="center_vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fontFamily="@string/roboto_medium"
+    android:textSize="@dimen/abc_text_size_headline_material"
+    android:textColor="@color/colorHeadline"
+    android:paddingTop="15sp"
+    android:paddingBottom="15sp"
+    android:paddingLeft="26sp"
+    android:paddingRight="26sp"
     android:checkMark="?android:attr/listChoiceIndicatorSingle"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    android:textStyle="italic" />
+
+

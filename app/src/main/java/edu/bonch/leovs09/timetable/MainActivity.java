@@ -1,6 +1,7 @@
 package edu.bonch.leovs09.timetable;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -75,15 +76,19 @@ public class MainActivity extends AppCompatActivity {
     private String WEEK_IS_CURRENT;
     private String KEY_GROUP;
     private String PREFERENCES_FILE_NAME;
+    private String CHANGE_GROUP_KEY;
+
 
     private void setCurrentWeek(){
-        Date date = new Date();
-        Date studyStartDate = getStudyStartDate();
-        Log.d("setCurrentWeek","studyStartDate: " + studyStartDate.toString());
-        date = new Date(date.getTime() - studyStartDate.getTime());
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(date.getTime());
-        Log.d("setCurrentWeek","currentWeek: " + calendar.get(Calendar.WEEK_OF_YEAR));
+        Date date = calendar.getTime();
+        calendar.set(2016,9-1,1);
+        Date studyStartDate = calendar.getTime();
+        Log.d("setCurrentWeek","studyStartDate: " + studyStartDate.toString());
+
+        calendar.setTimeInMillis(date.getTime() - studyStartDate.getTime());
+        Log.d("setCurrentWeek","currentWeek: " + calendar.get(calendar.WEEK_OF_YEAR));
+        CurrentWeek = calendar.get(calendar.WEEK_OF_YEAR);
         if(CurrentWeek > 1){
             mStartPage = 1;
             if(CurrentWeek > 2){
@@ -94,9 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private Date getStudyStartDate(){
-        return new Date(2016,9,1);
-    }
 
     public int getCurrentWeek() {
         return CurrentWeek;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         WEEK_IS_CURRENT = resources.getString(R.string.week_current);
         KEY_GROUP = resources.getString(R.string.key_group);
         PREFERENCES_FILE_NAME = resources.getString(R.string.preferences_file_name);
+        CHANGE_GROUP_KEY = resources.getString(R.string.change_group_key);
     }
 
 
@@ -179,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -191,16 +194,22 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_change_group) {
+            return startSignActivity();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
+    private boolean startSignActivity(){
+        SharedPreferences prefs = getSharedPreferences(PREFERENCES_FILE_NAME,MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(CHANGE_GROUP_KEY,true);
+        editor.commit();
+        Intent intent = new Intent(this,SignInActivity.class);
+        startActivity(intent);
+        return true;
+    }
 
 
 
