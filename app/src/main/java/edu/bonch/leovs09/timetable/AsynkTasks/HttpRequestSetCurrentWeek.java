@@ -13,7 +13,7 @@ import edu.bonch.leovs09.timetable.REST.RestRequest;
 /**
  * Created by LeoVS09 on 14.09.2016.
  */
-public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekWrapper> {
+public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekParser> {
 
 
     private int idForReplace;
@@ -27,7 +27,7 @@ public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekW
 
 
     @Override
-    protected WeekWrapper doInBackground(Object... pars) {
+    protected WeekParser doInBackground(Object... pars) {
         try {
             ArrayList<String> params = new ArrayList<>();
             for(Object par:pars) params.add(par.toString());
@@ -37,10 +37,11 @@ public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekW
                     .GetObjAndStatus(String.class).toString();
             Log.i("HttpRequest", "Response received");
 
-            return new WeekWrapper(response, params.get(1));
+            return new WeekParser(response, params.get(1));
 
         } catch (Exception e) {
             Log.e("HttpRequest::StartError", e.getMessage(), e);
+            cancel(true);
         }
 
         return null;
@@ -48,7 +49,7 @@ public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekW
 
 
     @Override
-    protected void onPostExecute(WeekWrapper response) {
+    protected void onPostExecute(WeekParser response) {
 //            super.onPostExecute(response);
         Log.i("HttpRequest", "onPost start");
         try {
@@ -66,13 +67,14 @@ public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekW
 
 }
 
-class WeekWrapper {
+class WeekParser {
     private Week week;
     private int numOfWeek;
 
-    public WeekWrapper(String week, String numOfWeek) throws Exception {
-        this.week = new WeekBuilder().buildWeek(week);
+    public WeekParser(String week, String numOfWeek) throws Exception {
         this.numOfWeek = Integer.parseInt(numOfWeek);
+        this.week = new WeekBuilder().buildWeek(this.numOfWeek,week);
+        this.week.save();
     }
 
     public Week getWeek() {

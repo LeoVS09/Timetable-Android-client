@@ -37,6 +37,10 @@ import edu.bonch.leovs09.timetable.ODT.Lesson;
 import edu.bonch.leovs09.timetable.ODT.Week;
 import edu.bonch.leovs09.timetable.ODT.WeekBuilder;
 import edu.bonch.leovs09.timetable.REST.RestRequest;
+
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Configuration;
+import com.activeandroid.query.Select;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -117,6 +121,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Configuration dbConfiguration = new Configuration.Builder(this)
+                .setDatabaseName("TimeTable.db")
+                .addModelClass(Lesson.class)
+                .addModelClass(Day.class)
+                .addModelClass(Week.class)
+                .create();
+        ActiveAndroid.initialize(dbConfiguration);
+
         setResources();
         setContentView(R.layout.activity_main);
         progress = new ProgressDialog(this);

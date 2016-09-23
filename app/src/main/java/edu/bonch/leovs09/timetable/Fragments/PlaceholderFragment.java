@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.activeandroid.Model;
+import com.activeandroid.query.Select;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import edu.bonch.leovs09.timetable.MainActivity;
 import edu.bonch.leovs09.timetable.ODT.Day;
 import edu.bonch.leovs09.timetable.ODT.Lesson;
 import edu.bonch.leovs09.timetable.ODT.Week;
+import edu.bonch.leovs09.timetable.ODT.WeekBuilder;
 import edu.bonch.leovs09.timetable.R;
 
 /**
@@ -62,7 +65,6 @@ public class PlaceholderFragment extends Fragment {
         ObjectMapper objectMapper = new ObjectMapper();
 
 
-
         try {
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 
@@ -70,6 +72,12 @@ public class PlaceholderFragment extends Fragment {
             MainActivity mainActivity = (MainActivity) getActivity();
             mWeeks  = mainActivity.getWeeks();
             if(mWeeks[sectionNumber] == null){
+                Week weekInDB = new WeekBuilder().getWeekFromDB(sectionNumber);
+                if(weekInDB != null){
+                    Log.d("onCreatePlaceHolder","Searched in bd:" + weekInDB);
+                    mWeeks[sectionNumber] = weekInDB;
+                    refresh();
+                }
                 new HttpRequestSetCurrentWeek().id(sectionNumber).activity(mainActivity)
                         .execute( STATIC_GROUP, Integer.toString(sectionNumber));
             }else {

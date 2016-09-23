@@ -36,25 +36,38 @@ public class WeekBuilder {
         times.add("16.30-18.05");
     }
 
-    public Week buildWeek(String json)throws Exception{
-        Log.i("buildWeek",json);
+    public Week buildWeek(int number,String json)throws Exception{
+//        Log.i("buildWeek",json);
+
         JSONParser parser = new JSONParser();
         ArrayList<Day> days = new ArrayList<>();
         DayBuilder dayBuilder = new DayBuilder();
         try {
             JSONObject obj = (JSONObject) parser.parse(json);
             obj = (JSONObject) obj.get(nameField);
-            for(DayNames dayName: dayNames) {
+            for (DayNames dayName : dayNames) {
                 days.add(dayBuilder.name(dayName.getFullName())
                         .times(times)
                         .buildDay((JSONObject) obj.get(dayName.getJsonName())));
             }
-            Log.i("buildWeekDays",days.toString());
-            return new Week(times,days);
-        }catch (Exception e){
-            Log.e("Week::JSONParse:",e.getMessage(),e);
+//            Log.i("buildWeekDays", days.toString());
+            Week week = Week.getWeekFromDB(number);
+            if(week == null) week = new Week(number, times, days);
+            else{
+                week.refresh().setTimes(times).setDays(days);
+            }
+            return week;
+        } catch (Exception e) {
+            Log.e("Week::JSONParse:", e.getMessage(), e);
             throw e;
-        }
+            }
+
+    }
+
+    public Week getWeekFromDB(int number){
+        Week week = Week.getWeekFromDB(number);
+        if(week == null) return null;
+        return week.setTimes(times).refresh();
     }
 }
 class DayNames{

@@ -170,6 +170,7 @@ public class SignInActivity extends AppCompatActivity {
         if(!change){
             String staticGroup = prefs.getString(KEY_GROUP,"null");
             if(!staticGroup.equals("null")) toggle();
+            return;
         }
         new HttpRequestSetListOfGroups().activity(this).execute();
         // Trigger the initial hide() shortly after the activity has been

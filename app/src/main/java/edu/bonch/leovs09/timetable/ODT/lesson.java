@@ -1,5 +1,9 @@
 package edu.bonch.leovs09.timetable.ODT;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+
 import org.json.simple.JSONObject;
 
 import java.util.Objects;
@@ -7,27 +11,37 @@ import java.util.Objects;
 /**
  * Created by LeoVS09 on 06.09.2016.
  */
-public class Lesson {
-    String name;
-    String type;
-    String room;
-    String teacher;
+@Table(name = "Lessons")
+public class Lesson extends Model{
+    @Column
+    private String name;
+    @Column
+    private String type;
+    @Column
+    private String room;
+    @Column
+    private String teacher;
+    @Column(name = "Day")
+    private Day day;
 
-
-    public Lesson (){}
+    public Lesson (){
+        super();
+    }
 
     public Lesson(String name){
+        this();
         this.name = name;
     }
 
     public Lesson(String name, String type, String teacher, String room) {
-        this.name = name;
+        this(name);
         this.type = type;
         this.teacher = teacher;
         this.room = room;
     }
 
     public Lesson(JSONObject json){
+        this();
         Object obj = json.get("name");
         this.name = obj == null ? "null" : obj.toString();
          obj = json.get("type");
@@ -85,5 +99,14 @@ public class Lesson {
 
     public  boolean isNameEmpty(){
         return name.isEmpty() || name.equals("none");
+    }
+
+    public Day getDay() {
+        return day;
+    }
+
+    public Lesson setDay(Day day) {
+        this.day = day;
+        return this;
     }
 }
