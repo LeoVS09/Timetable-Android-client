@@ -15,6 +15,11 @@ import com.activeandroid.query.Select;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import edu.bonch.leovs09.timetable.AsynkTasks.HttpRequestSetCurrentWeek;
 //import edu.bonch.leovs09.timetable.Listners.OnClickShortToFull;
@@ -40,6 +45,8 @@ public class PlaceholderFragment extends Fragment {
     private static final String WEEK_IS_CURRENT = " (текущая)";
     private static String STATIC_GROUP;
     private Week[] mWeeks;
+    private boolean weekIsCurrent = false;
+    private int dayIsCurrent = 1;
     public PlaceholderFragment() {
     }
 
@@ -71,8 +78,9 @@ public class PlaceholderFragment extends Fragment {
 //                int sectionNumber = 2;
             MainActivity mainActivity = (MainActivity) getActivity();
             mWeeks  = mainActivity.getWeeks();
+            weekIsCurrent = sectionNumber == mainActivity.getCurrentWeek();
             if(mWeeks[sectionNumber] == null){
-                Week weekInDB = new WeekBuilder().getWeekFromDB(sectionNumber);
+                Week weekInDB = new WeekBuilder(getResources()).getWeekFromDB(sectionNumber);
                 if(weekInDB != null){
                     Log.d("onCreatePlaceHolder","Searched in bd:" + weekInDB);
                     mWeeks[sectionNumber] = weekInDB;
@@ -108,6 +116,7 @@ public class PlaceholderFragment extends Fragment {
         Log.i("onCreateView", "showWeek");
         for (Day day : week.getDays()) {
             if(day.haveLessons()) {
+                if(weekIsCurrent) dayIsCurrent = isCurrentDay(day.getName());
                 LinearLayout dayLayout = (LinearLayout) inflater.inflate(R.layout.day, fragmentLayout, false);
 //                TextView dayName = (TextView) inflater.inflate(R.layout.day_name, fragmentLayout, false);
                 TextView dayName = (TextView) dayLayout.findViewById(R.id.dayName);
@@ -117,6 +126,9 @@ public class PlaceholderFragment extends Fragment {
 //                TableLayout table = (TableLayout) inflater.inflate(R.layout.day_table, fragmentLayout, false);
                 addLessons(dayLayout, day, times, inflater);
 //                fragmentLayout.addView(table);
+                    if(weekIsCurrent && dayIsCurrent < 0)
+                        dayLayout.setBackgroundResource(R.drawable.box_shadow_dark);
+
                 fragmentLayout.addView(dayLayout);
             }
         }
@@ -128,7 +140,12 @@ public class PlaceholderFragment extends Fragment {
             if(lesson.getName().equals("none")) continue;
 
             RelativeLayout row = (RelativeLayout) inflater.inflate(R.layout.lesson_short,dayLayout,false);
+            if(weekIsCurrent) {
+                if(dayIsCurrent < 0)
+                    row.setBackgroundResource(R.drawable.line_bottom_lesson_dark);
+                else if(dayIsCurrent == 0) synchroniseLesson(row, times.get(i));
 
+            }
             row.setOnClickListener(new OnClickToggle(i,day.getLessons().get(i),inflater,times.get(i),true));
 
             TextView time = (TextView) row.findViewById(R.id.timeStart);
@@ -148,13 +165,62 @@ public class PlaceholderFragment extends Fragment {
     }
 
 
+    private int isCurrentDay(String name){
+        Calendar calendar = Calendar.getInstance();
+        int dayNumber = calendar.get(calendar.DAY_OF_WEEK) - 1;
+        dayNumber = dayNumber == 0 ? 7 : dayNumber;
+        String[] dayNames = getResources().getStringArray(R.array.day_names_full);
+        for(int i = 0; i<dayNames.length;i++)
+            if(name == dayNames[i]) {
+                if(i < dayNumber) return -1;
+                else if(i == dayNumber) return 0;
+                else return 1;
+            }
+        return -1;
+    }
 
+    private void synchroniseLesson(RelativeLayout lesson,String time){
+        int[] iTime = parseTime(time);
+        int lessonIsCurrent = isCurrentLesson(iTime);
+        if(lessonIsCurrent < 0) {
+            lesson.setBackgroundResource(R.drawable.line_bottom_lesson_dark);
+            return;
+        }
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+        // TODO: set future change background
+    }
 
+    private int isCurrentLesson(int[] iTime){
+        Calendar calendar = Calendar.getInstance();
+        long now = calendar.getTimeInMillis();
+        calendar.set(calendar.HOUR,iTime[0]);
+        calendar.set(calendar.MINUTE,iTime[1]);
+        long startLesson = calendar.getTimeInMillis();
+        if(startLesson > now) return 1;
+        calendar.set(calendar.HOUR,iTime[2]);
+        calendar.set(calendar.MINUTE,iTime[3]);
+        long endLesson = calendar.getTimeInMillis();
+        if(endLesson < now) return -1;
+        return 0;
+    }
+
+    private int[] parseTime(String time){
+        int[] result = new int[4];
+        int dot = time.indexOf(".");
+        result[0] = Integer.parseInt(time.substring(0,dot));
+        int dash = time.indexOf("-");
+        result[1] = Integer.parseInt(time.substring(dot,dash));
+        dot = time.lastIndexOf(".");
+        result[2] = Integer.parseInt(time.substring(dash,dot));
+        result[3] = Integer.parseInt(time.substring(dot));
+        Log.d("parseTime",result.toString());
+        return result;
+    }
 
 
 
     public void refresh(){
-        if (! this.isDetached()) {
+        if (!this.isDetached()) {
             getFragmentManager().beginTransaction()
                     .detach(this)
                     .attach(this)

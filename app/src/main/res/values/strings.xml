@@ -12,4 +12,27 @@
     <string name="key_group">group</string>
     <string name="preferences_file_name">TimeTable</string>
     <string name="change_group_menu_title">сменить группу</string>
+    <string-array name="day_names_full">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+    </string-array>
+    <string-array name="day_names_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+    </string-array>
+    <string-array name="times">
+        <item>9.00-10.35</item>
+        <item>10.45-12.20</item>
+        <item>13.00-14.35</item>
+        <item>14.45-16.20</item>
+        <item>16.30-18.05</item>
+    </string-array>
 </resources>

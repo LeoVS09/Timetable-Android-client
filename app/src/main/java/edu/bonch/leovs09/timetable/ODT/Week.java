@@ -71,7 +71,10 @@ public class Week extends Model{
         return this;
     }
     public Week setDays(ArrayList<Day> days) {
-        for(Day day: this.days) day.delete();
+        for(Day day: this.days) {
+            for(Lesson lesson: day.getLessons())lesson.delete();
+            day.delete();
+        }
         for(Day day: days) day.setWeek(this).save();
         this.days = days;
         return this;

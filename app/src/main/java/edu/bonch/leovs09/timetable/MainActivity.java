@@ -170,16 +170,16 @@ public class MainActivity extends AppCompatActivity {
 
         setAppBarTitle(mStartPage);
 //--------------------------------button for update---------------------------------
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
 
 //                backTask = new HttpRequestSetCurrentWeek().execute("ИКПИ-53","2");
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-            }
-        });
+//            }
+//        });
 //----------------------------------------------------------------------------------
     }
 

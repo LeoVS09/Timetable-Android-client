@@ -1,5 +1,7 @@
 package edu.bonch.leovs09.timetable.AsynkTasks;
 
+import android.app.Activity;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ public class HttpRequestSetCurrentWeek extends HttpRequest<Object, String, WeekP
                     .GetObjAndStatus(String.class).toString();
             Log.i("HttpRequest", "Response received");
 
-            return new WeekParser(response, params.get(1));
+            return new WeekParser(activity.getResources(), response, params.get(1));
 
         } catch (Exception e) {
             Log.e("HttpRequest::StartError", e.getMessage(), e);
@@ -71,9 +73,9 @@ class WeekParser {
     private Week week;
     private int numOfWeek;
 
-    public WeekParser(String week, String numOfWeek) throws Exception {
+    public WeekParser(Resources res, String week, String numOfWeek) throws Exception {
         this.numOfWeek = Integer.parseInt(numOfWeek);
-        this.week = new WeekBuilder().buildWeek(this.numOfWeek,week);
+        this.week = new WeekBuilder(res).buildWeek(this.numOfWeek,week);
         this.week.save();
     }
 

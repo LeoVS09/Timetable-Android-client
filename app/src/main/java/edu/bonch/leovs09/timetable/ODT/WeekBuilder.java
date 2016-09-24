@@ -1,5 +1,6 @@
 package edu.bonch.leovs09.timetable.ODT;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import org.json.simple.JSONObject;
@@ -19,21 +20,28 @@ public class WeekBuilder {
     private String nameField;
     private ArrayList<DayNames> dayNames;
 
-    public WeekBuilder(){
+    public WeekBuilder(Resources res){
         this.nameField = "days";
         this.dayNames = new ArrayList<>();
-        dayNames.add(new DayNames("Понедельник","Mon"));
-        dayNames.add(new DayNames("Вторник","Tue"));
-        dayNames.add(new DayNames("Среда","Wed"));
-        dayNames.add(new DayNames("Четверг","Thu"));
-        dayNames.add(new DayNames("Пятница","Fri"));
-        dayNames.add(new DayNames("Суббота","Sat"));
+        String[] dayNamesFull = res.getStringArray(R.array.day_names_full);
+        String[] dayNamesShort = res.getStringArray(R.array.day_names_short);
+        for(int i = 0;i < dayNamesFull.length;i++)
+            dayNames.add(new DayNames(dayNamesFull[i],dayNamesShort[i]));
+//        dayNames.add(new DayNames("Понедельник","Mon"));
+//        dayNames.add(new DayNames("Вторник","Tue"));
+//        dayNames.add(new DayNames("Среда","Wed"));
+//        dayNames.add(new DayNames("Четверг","Thu"));
+//        dayNames.add(new DayNames("Пятница","Fri"));
+//        dayNames.add(new DayNames("Суббота","Sat"));
         this.times = new ArrayList<>();
-        times.add("9.00-10.35");
-        times.add("10.45-12.20");
-        times.add("13.00-14.35");
-        times.add("14.45-16.20");
-        times.add("16.30-18.05");
+        String[] timesStrings = res.getStringArray(R.array.times);
+        for(int i = 0;i < timesStrings.length; i++)
+            times.add(timesStrings[i]);
+//        times.add("9.00-10.35");
+//        times.add("10.45-12.20");
+//        times.add("13.00-14.35");
+//        times.add("14.45-16.20");
+//        times.add("16.30-18.05");
     }
 
     public Week buildWeek(int number,String json)throws Exception{
