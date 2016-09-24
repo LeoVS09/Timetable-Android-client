@@ -95,4 +95,5 @@ public class Day extends Model{
         return res;
     }
 
+
 }

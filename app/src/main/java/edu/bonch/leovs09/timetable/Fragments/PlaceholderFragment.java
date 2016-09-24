@@ -1,6 +1,8 @@
 package edu.bonch.leovs09.timetable.Fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +49,7 @@ public class PlaceholderFragment extends Fragment {
     private Week[] mWeeks;
     private boolean weekIsCurrent = false;
     private int dayIsCurrent = 1;
+    private Handler refresher;
     public PlaceholderFragment() {
     }
 
@@ -71,6 +74,7 @@ public class PlaceholderFragment extends Fragment {
         //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
         ObjectMapper objectMapper = new ObjectMapper();
 
+        refresher = new RefreshHandler(this);
 
         try {
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
@@ -99,6 +103,22 @@ public class PlaceholderFragment extends Fragment {
         }
 //            textView.setText(getArguments().getString(ARG_SECTION_TEXT));
         return rootView;
+    }
+
+    private class RefreshHandler extends Handler{
+        PlaceholderFragment fragment;
+
+        public RefreshHandler(PlaceholderFragment fragment){
+            super();
+            this.fragment = fragment;
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 1){
+                fragment.refresh();
+            }
+        }
     }
 
     private void showWeek(int sectionNumber,LayoutInflater inflater,LinearLayout fragmentLayout){
@@ -180,28 +200,22 @@ public class PlaceholderFragment extends Fragment {
     }
 
     private void synchroniseLesson(RelativeLayout lesson,String time){
-        int[] iTime = parseTime(time);
-        int lessonIsCurrent = isCurrentLesson(iTime);
-        if(lessonIsCurrent < 0) {
+        long left = leftBeforeLesson(parseTime(time));
+        if(left < 0) {
             lesson.setBackgroundResource(R.drawable.line_bottom_lesson_dark);
             return;
         }
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-        // TODO: set future change background
+        refresher.removeMessages(1);
+        refresher.sendEmptyMessageDelayed(1,left+1000);
     }
 
-    private int isCurrentLesson(int[] iTime){
+    private long leftBeforeLesson(int[] iTime){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
-        calendar.set(calendar.HOUR,iTime[0]);
-        calendar.set(calendar.MINUTE,iTime[1]);
-        long startLesson = calendar.getTimeInMillis();
-        if(startLesson > now) return 1;
         calendar.set(calendar.HOUR,iTime[2]);
         calendar.set(calendar.MINUTE,iTime[3]);
         long endLesson = calendar.getTimeInMillis();
-        if(endLesson < now) return -1;
-        return 0;
+        return endLesson - now;
     }
 
     private int[] parseTime(String time){
