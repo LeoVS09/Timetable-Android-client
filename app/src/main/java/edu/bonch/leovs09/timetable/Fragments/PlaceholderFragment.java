@@ -1,5 +1,6 @@
 package edu.bonch.leovs09.timetable.Fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import edu.bonch.leovs09.timetable.AsynkTasks.HttpRequestSetCurrentWeek;
 //import edu.bonch.leovs09.timetable.Listners.OnClickShortToFull;
@@ -50,6 +54,8 @@ public class PlaceholderFragment extends Fragment {
     private boolean weekIsCurrent = false;
     private int dayIsCurrent = 1;
     private Handler refresher;
+    private ProgressBar progressBar;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
     public PlaceholderFragment() {
     }
 
@@ -112,11 +118,17 @@ public class PlaceholderFragment extends Fragment {
             super();
             this.fragment = fragment;
         }
+        //TODO: refactor constance to finals
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(msg.what == 1){
+            if(msg.what == 1) {
+                removeMessages(1);
                 fragment.refresh();
+
+            }else if(msg.what == 2){
+                //TODO: listening while progress bar is removing
+                progressBar.setProgress(msg.arg1);
             }
         }
     }
@@ -163,7 +175,7 @@ public class PlaceholderFragment extends Fragment {
             if(weekIsCurrent) {
                 if(dayIsCurrent < 0)
                     row.setBackgroundResource(R.drawable.line_bottom_lesson_dark);
-                else if(dayIsCurrent == 0) synchroniseLesson(row, times.get(i));
+                else if(dayIsCurrent == 0) synchroniseLesson(row, times.get(i),inflater);
 
             }
             row.setOnClickListener(new OnClickToggle(i,day.getLessons().get(i),inflater,times.get(i),true));
@@ -199,17 +211,61 @@ public class PlaceholderFragment extends Fragment {
         return -1;
     }
 
-    private void synchroniseLesson(RelativeLayout lesson,String time){
-        long left = leftBeforeLesson(parseTime(time));
-        if(left < 0) {
+    private void synchroniseLesson(RelativeLayout lesson,String time,LayoutInflater inflater){
+        int[] times = parseTime(time);
+        final long leftToEnd = leftBeforeEndLesson(times);
+        if(leftToEnd <= 0) {
             lesson.setBackgroundResource(R.drawable.line_bottom_lesson_dark);
             return;
         }
-        refresher.removeMessages(1);
-        refresher.sendEmptyMessageDelayed(1,left+1000);
+        refresher.sendEmptyMessageDelayed(1,leftToEnd+1000);
+        long leftToBegin = leftBeforeBeginLesson(times);
+        if(leftToBegin <= 0){
+            if(progressBar == null){
+                progressBar = (ProgressBar) inflater.inflate(R.layout.progress_lesson,lesson,false);
+                progressBar.setMax(100);
+                progressBar.setProgress(0);
+                lesson.addView(progressBar);
+                executorService.submit(new ProgressUpdater(startOfLesson(times),
+                                                            endOfLesson(times)));
+            }
+        }else
+            refresher.sendEmptyMessageDelayed(1,leftToBegin+1000);
+
+    }
+    private class ProgressUpdater implements Runnable{
+        private long start;
+        private long end;
+        public ProgressUpdater(long start,long end){
+            super();
+            this.start = start;
+            this.end = end;
+        }
+        @Override
+        public void run(){
+            try {
+                long now = Calendar.getInstance().getTimeInMillis();
+                while (end > now) {
+                    refresher.sendMessage(refresher.obtainMessage(2, (int) ((end - now) / (start - end))));
+                    TimeUnit.SECONDS.sleep(30);
+                    now = Calendar.getInstance().getTimeInMillis();
+                }
+                executorService.shutdown();
+            }catch (Exception e){
+                Log.e("ProgressUpdater",e.getMessage(),e);
+            }
+            finally {
+                if (!executorService.isTerminated()) {
+                    Log.e("ProgressUpdater","cancel non-finished tasks");
+                }
+                executorService.shutdownNow();
+            }
+        }
     }
 
-    private long leftBeforeLesson(int[] iTime){
+
+    //TODO: refresh this method to one method ----
+    private long leftBeforeEndLesson(int[] iTime){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
         calendar.set(calendar.HOUR,iTime[2]);
@@ -218,6 +274,30 @@ public class PlaceholderFragment extends Fragment {
         return endLesson - now;
     }
 
+    private long endOfLesson(int [] iTime){
+        Calendar calendar = Calendar.getInstance();
+        long now = calendar.getTimeInMillis();
+        calendar.set(calendar.HOUR,iTime[2]);
+        calendar.set(calendar.MINUTE,iTime[3]);
+        return calendar.getTimeInMillis();
+    }
+
+    private long leftBeforeBeginLesson(int[] iTime){
+        Calendar calendar = Calendar.getInstance();
+        long now = calendar.getTimeInMillis();
+        calendar.set(calendar.HOUR,iTime[0]);
+        calendar.set(calendar.MINUTE,iTime[1]);
+        long startLesson = calendar.getTimeInMillis();
+        return startLesson - now;
+    }
+    private long startOfLesson(int[] iTime){
+        Calendar calendar = Calendar.getInstance();
+        long now = calendar.getTimeInMillis();
+        calendar.set(calendar.HOUR,iTime[0]);
+        calendar.set(calendar.MINUTE,iTime[1]);
+        return calendar.getTimeInMillis();
+    }
+    //----------------------------------------------
     private int[] parseTime(String time){
         int[] result = new int[4];
         int dot = time.indexOf(".");

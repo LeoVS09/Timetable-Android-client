@@ -62,7 +62,9 @@
             android:textColor="@color/colorText"
             android:paddingRight="20sp" />
 
-    </RelativeLayout>
+
+
+</RelativeLayout>
 
     <!--<TextView-->
     <!--android:layout_width="match_parent"-->
