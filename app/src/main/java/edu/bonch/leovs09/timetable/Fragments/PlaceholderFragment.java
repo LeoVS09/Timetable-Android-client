@@ -2,6 +2,7 @@ package edu.bonch.leovs09.timetable.Fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -122,6 +123,7 @@ public class PlaceholderFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.d("handleMessage",msg.what + ": " + msg.arg1);
             if(msg.what == 1) {
                 removeMessages(1);
                 fragment.refresh();
@@ -129,6 +131,11 @@ public class PlaceholderFragment extends Fragment {
             }else if(msg.what == 2){
                 //TODO: listening while progress bar is removing
                 progressBar.setProgress(msg.arg1);
+            } else if(msg.what == 3){
+                ViewGroup parent = (ViewGroup) progressBar.getParent();
+                parent.removeView(progressBar);
+                executorService.shutdownNow();
+                progressBar = null;
             }
         }
     }
@@ -197,20 +204,21 @@ public class PlaceholderFragment extends Fragment {
     }
 
 
+
     private int isCurrentDay(String name){
         Calendar calendar = Calendar.getInstance();
-        int dayNumber = calendar.get(calendar.DAY_OF_WEEK) - 1;
-        dayNumber = dayNumber == 0 ? 7 : dayNumber;
+        int dayNumber = calendar.get(calendar.DAY_OF_WEEK) - 2;
+        dayNumber = dayNumber == -1 ? 6 : dayNumber;
         String[] dayNames = getResources().getStringArray(R.array.day_names_full);
-        for(int i = 0; i<dayNames.length;i++)
-            if(name == dayNames[i]) {
+        for(int i = 0; i < dayNames.length; i++)
+            if(name.equals(dayNames[i])) {
                 if(i < dayNumber) return -1;
                 else if(i == dayNumber) return 0;
                 else return 1;
             }
         return -1;
     }
-
+    boolean progressUpdaterActive = false;
     private void synchroniseLesson(RelativeLayout lesson,String time,LayoutInflater inflater){
         int[] times = parseTime(time);
         final long leftToEnd = leftBeforeEndLesson(times);
@@ -221,13 +229,18 @@ public class PlaceholderFragment extends Fragment {
         refresher.sendEmptyMessageDelayed(1,leftToEnd+1000);
         long leftToBegin = leftBeforeBeginLesson(times);
         if(leftToBegin <= 0){
-            if(progressBar == null){
-                progressBar = (ProgressBar) inflater.inflate(R.layout.progress_lesson,lesson,false);
-                progressBar.setMax(100);
-                progressBar.setProgress(0);
-                lesson.addView(progressBar);
+            Log.d("synchroniseLesson","setProgress:" + progressBar);
+            if(progressBar != null){
+                progressBar = null;}
+            progressBar = (ProgressBar) inflater
+                    .inflate(R.layout.progress_lesson,lesson,false);
+            progressBar.setMax(100);
+            progressBar.setProgress(0);
+            lesson.addView(progressBar);
+            if(!progressUpdaterActive) {
+                progressUpdaterActive = true;
                 executorService.submit(new ProgressUpdater(startOfLesson(times),
-                                                            endOfLesson(times)));
+                        endOfLesson(times)));
             }
         }else
             refresher.sendEmptyMessageDelayed(1,leftToBegin+1000);
@@ -237,19 +250,24 @@ public class PlaceholderFragment extends Fragment {
         private long start;
         private long end;
         public ProgressUpdater(long start,long end){
-            super();
             this.start = start;
             this.end = end;
+            Log.d("ProgressUpdater","created");
         }
         @Override
         public void run(){
+            Log.d("ProgressUpdater","start");
             try {
                 long now = Calendar.getInstance().getTimeInMillis();
                 while (end > now) {
-                    refresher.sendMessage(refresher.obtainMessage(2, (int) ((end - now) / (start - end))));
-                    TimeUnit.SECONDS.sleep(30);
+                    int progress = (int)((((double)(end - now)) / (end - start))*100);
+                    progress = 100 - progress;
+                    Log.d("ProgressUpdater","progress: " + progress);
+                    refresher.sendMessage(refresher.obtainMessage(2, progress,0));
+                    TimeUnit.SECONDS.sleep(1);
                     now = Calendar.getInstance().getTimeInMillis();
                 }
+                refresher.sendEmptyMessage(3);
                 executorService.shutdown();
             }catch (Exception e){
                 Log.e("ProgressUpdater",e.getMessage(),e);
@@ -268,32 +286,37 @@ public class PlaceholderFragment extends Fragment {
     private long leftBeforeEndLesson(int[] iTime){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
-        calendar.set(calendar.HOUR,iTime[2]);
+        calendar.set(calendar.HOUR_OF_DAY,iTime[2]);
         calendar.set(calendar.MINUTE,iTime[3]);
         long endLesson = calendar.getTimeInMillis();
         return endLesson - now;
     }
-
+    private String arrayToString(int[] iTime){
+        return iTime[0] + ":" + iTime[1] + "/" + iTime[2] + ":" + iTime[3];
+    }
     private long endOfLesson(int [] iTime){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
-        calendar.set(calendar.HOUR,iTime[2]);
+        calendar.set(calendar.HOUR_OF_DAY,iTime[2]);
         calendar.set(calendar.MINUTE,iTime[3]);
         return calendar.getTimeInMillis();
     }
 
     private long leftBeforeBeginLesson(int[] iTime){
+        Log.d("leftBeforeBeginLesson","start:" + arrayToString(iTime));
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
-        calendar.set(calendar.HOUR,iTime[0]);
+        calendar.set(calendar.HOUR_OF_DAY,iTime[0]);
         calendar.set(calendar.MINUTE,iTime[1]);
         long startLesson = calendar.getTimeInMillis();
-        return startLesson - now;
+        startLesson -= now;
+        Log.d("leftBeforeBeginLesson","end:" + startLesson);
+        return startLesson;
     }
     private long startOfLesson(int[] iTime){
         Calendar calendar = Calendar.getInstance();
         long now = calendar.getTimeInMillis();
-        calendar.set(calendar.HOUR,iTime[0]);
+        calendar.set(calendar.HOUR_OF_DAY,iTime[0]);
         calendar.set(calendar.MINUTE,iTime[1]);
         return calendar.getTimeInMillis();
     }
@@ -303,10 +326,10 @@ public class PlaceholderFragment extends Fragment {
         int dot = time.indexOf(".");
         result[0] = Integer.parseInt(time.substring(0,dot));
         int dash = time.indexOf("-");
-        result[1] = Integer.parseInt(time.substring(dot,dash));
+        result[1] = Integer.parseInt(time.substring(dot+1,dash));
         dot = time.lastIndexOf(".");
-        result[2] = Integer.parseInt(time.substring(dash,dot));
-        result[3] = Integer.parseInt(time.substring(dot));
+        result[2] = Integer.parseInt(time.substring(dash+1,dot));
+        result[3] = Integer.parseInt(time.substring(dot+1));
         Log.d("parseTime",result.toString());
         return result;
     }

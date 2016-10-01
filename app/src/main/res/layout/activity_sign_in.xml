@@ -42,7 +42,7 @@
         android:id="@+id/progressBarSignIn"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:foreground="@color/abc_primary_text_disable_only_material_dark" />
+        android:foreground="@color/colorBackground" />
 </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -98,7 +98,7 @@
         android:top="3dp"
         android:bottom="5dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/colorPrimaryMediumDark"/>
+            <solid android:color="@color/colorLast"/>
             <corners android:radius="2dp"/>
         </shape>
     </item>
