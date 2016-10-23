@@ -16,6 +16,6 @@
     <color name="colorHeadline">#c8000000</color>
     <color name="colorBody">#c8000000</color>
     <color name="colorTeacher">#a4000000</color>
-    <color name="colorLast">#EEEEEE</color>
+    <color name="colorLast">#E0E0E0</color>
     <color name="black_overlay">#66000000</color>
 </resources>

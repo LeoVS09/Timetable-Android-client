@@ -15,7 +15,7 @@ import edu.bonch.leovs09.timetable.Fragments.PlaceholderFragment;
  * one of the sections/tabs/pages.
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
+    //TODO:set offset for fragments, in order to not need create array size of more than index of last fragment
     private int displasement = 2;
     private PlaceholderFragment[] fragments;
     private String STATIC_GROUP;
